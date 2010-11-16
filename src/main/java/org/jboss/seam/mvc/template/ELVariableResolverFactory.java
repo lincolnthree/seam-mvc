@@ -34,6 +34,8 @@ import org.mvel2.integration.impl.BaseVariableResolverFactory;
  */
 public class ELVariableResolverFactory extends BaseVariableResolverFactory
 {
+   private static final long serialVersionUID = -6604385342199256006L;
+
    private final Expressions expressions;
 
    @Inject
@@ -45,16 +47,32 @@ public class ELVariableResolverFactory extends BaseVariableResolverFactory
    @Override
    public VariableResolver createVariable(final String name, final Object value)
    {
-      ValueExpression expression = expressions.getExpressionFactory().createValueExpression(value, Object.class);
-      Class<?> type = expression.getType(expressions.getELContext());
-      return createVariable(name, value, type);
+      if (isLocallyResolvable(name))
+      {
+         ValueExpression expression = expressions.getExpressionFactory().createValueExpression(value, Object.class);
+         Class<?> type = expression.getType(expressions.getELContext());
+         return createVariable(name, value, type);
+      }
+      else if (isResolveable(name))
+      {
+         return getNextFactory().createVariable(name, value);
+      }
+      return null;
    }
 
    @Override
    public VariableResolver createVariable(final String name, final Object value, final Class<?> type)
    {
-      ELVariableResolver resolver = new ELVariableResolver(expressions, name, type);
-      return resolver;
+      if (isLocallyResolvable(name))
+      {
+         ELVariableResolver resolver = new ELVariableResolver(expressions, name, type);
+         return resolver;
+      }
+      else if (isResolveable(name))
+      {
+         return getNextFactory().createVariable(name, value);
+      }
+      return null;
    }
 
    @Override
@@ -67,18 +85,24 @@ public class ELVariableResolverFactory extends BaseVariableResolverFactory
    public boolean isResolveable(final String name)
    {
       boolean result = false;
+      result = isLocallyResolvable(name) && isNextResolveable(name);
+      return result;
+   }
+
+   private boolean isLocallyResolvable(final String name)
+   {
+      boolean result = false;
       if (name == null)
       {
          result = false;
       }
       try
       {
-         Object object = expressions.evaluateValueExpression(expressions.toExpression(name));
+         expressions.evaluateValueExpression(expressions.toExpression(name));
          result = true;
       }
       catch (Exception e)
       {
-         result = isNextResolveable(name);
       }
 
       return result;
