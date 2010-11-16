@@ -78,7 +78,7 @@ public class ELVariableResolverFactory extends BaseVariableResolverFactory
    @Override
    public boolean isTarget(final String name)
    {
-      return false;
+      return isLocallyResolvable(name);
    }
 
    @Override

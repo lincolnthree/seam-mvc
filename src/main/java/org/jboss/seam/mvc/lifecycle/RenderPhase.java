@@ -22,56 +22,64 @@
 package org.jboss.seam.mvc.lifecycle;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import com.sun.org.apache.xpath.internal.functions.FuncUnparsedEntityURI;
 import org.jboss.seam.mvc.template.ELVariableResolverFactory;
 import org.mvel2.ParserContext;
+import org.mvel2.integration.impl.FunctionVariableResolverFactory;
+import org.mvel2.integration.impl.MapVariableResolver;
+import org.mvel2.integration.impl.MapVariableResolverFactory;
 import org.mvel2.templates.SimpleTemplateRegistry;
 import org.mvel2.templates.TemplateCompiler;
 import org.mvel2.templates.TemplateRegistry;
 import org.mvel2.templates.TemplateRuntime;
 import org.mvel2.templates.util.TemplateTools;
+import org.mvel2.util.MethodStub;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
- * 
  */
-public class RenderPhase implements Phase
-{
-   private final ELVariableResolverFactory factory;
-   private TemplateRegistry registry;
-   private ParserContext context;
+public class RenderPhase implements Phase {
+    private final ELVariableResolverFactory factory;
+    private TemplateRegistry registry;
+    private MapVariableResolverFactory functions;
 
-   @Inject
-   public RenderPhase(final ELVariableResolverFactory factory)
-   {
-      this.factory = factory;
-   }
 
-   @PostConstruct
-   public void init()
-   {
-      context = new ParserContext();
-      try
-      {
-         context.addImport("time", System.class.getMethod("bind", this.getClass()));
-      }
-      catch (NoSuchMethodException e)
-      {
-         // handle exception here.
-      }
+    @Inject
+    public RenderPhase(final ELVariableResolverFactory factory) {
+        this.factory = factory;
 
-      registry = new SimpleTemplateRegistry();
-      registry.addNamedTemplate("forms",
-               TemplateCompiler.compileTemplate("@code{def bind(loc) {System.out.println(loc);}}"));
-   }
+        // create a map resolve to hold the functions we want to inject, and chain
+        // the ELVariableResolverFactory to this factory.
+        functions = new MapVariableResolverFactory(new HashMap<String, Object>(), factory);
+    }
 
-   public String perform(final InputStream stream, final Map context)
-   {
-      String template = TemplateTools.readStream(stream);
-      return (String) TemplateRuntime.eval(template, context, factory, registry);
-   }
+    @PostConstruct
+    public void init() {
+        try {
+
+            // inject the method by wrapping it in a MethodStub -- this is a marking wrapper that tells
+            // mvel internally to treat this is a function pointer.
+            functions.createVariable("time", new MethodStub(System.class.getMethod("bind", this.getClass())));
+        } catch (NoSuchMethodException e) {
+            // handle exception here.
+        }
+
+        registry = new SimpleTemplateRegistry();
+        registry.addNamedTemplate("forms",
+                TemplateCompiler.compileTemplate("@code{def bind(loc) {System.out.println(loc);}}"));
+    }
+
+    public String perform(final InputStream stream, final Map context) {
+        String template = TemplateTools.readStream(stream);
+
+        // evaulated the template with the functions resolver as the outer resolver
+        // remember we chained 'functions' to 'factory'
+        return (String) TemplateRuntime.eval(template, context, functions, registry);
+    }
 }
