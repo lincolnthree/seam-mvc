@@ -23,24 +23,59 @@ package org.jboss.seam.mvc.lifecycle;
 
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.el.ELContext;
+import javax.el.ValueExpression;
 import javax.inject.Inject;
 
+import org.jboss.seam.mvc.template.Bindings;
 import org.jboss.seam.mvc.template.CompiledView;
 import org.jboss.seam.mvc.template.ViewCompiler;
+import org.jboss.weld.extensions.el.Expressions;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  */
-public class RenderPhase implements Phase
+public class ApplyValuesPhase implements Phase
 {
    @Inject
    private ViewCompiler compiler;
 
-   public String perform(final InputStream input, final Map<String, String[]> parameterMap)
+   @Inject
+   private Bindings bindings;
+
+   @Inject
+   private Expressions expressions;
+
+   public void perform(final InputStream input, final Map<String, String[]> parameterMap)
    {
       CompiledView view = compiler.compile(input);
-      return view.render(parameterMap);
-   }
+      view.render(parameterMap);
+      for (Entry<String, String> entry : bindings.entrySet())
+      {
+         String param = entry.getKey();
+         String el = entry.getValue();
+         String[] values = parameterMap.get(param);
+         String inject = null;
+         if ((values != null) && (values.length > 0))
+         {
+            inject = values[0];
+         }
 
+         // TODO validation and conversion
+
+         if (el != null)
+         {
+            el = expressions.toExpression(el);
+            ValueExpression ve = expressions.getExpressionFactory().createValueExpression(el, Object.class);
+            ELContext context = expressions.getELContext();
+            Class<?> type = ve.getType(context);
+
+            Object coercedValue = expressions.getExpressionFactory().coerceToType(inject, type);
+            ve = expressions.getExpressionFactory().createValueExpression(context, el, type);
+            ve.setValue(expressions.getELContext(), coercedValue);
+         }
+      }
+   }
 }

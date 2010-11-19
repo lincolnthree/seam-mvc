@@ -7,8 +7,12 @@
 	<h1>Hi, this is the world of @{world}.</h1>
 	
 	<label for="firstName">First Name:</label><br/>
-	<form action="@{View.currentView()}">
-		<input id="firstName" type="text" value="#{Input.bind(firstName, currentUser.firstName)}" />
+	<form action="@view{}">
+		<input id="firstName" type="text" value="@bind(firstName, currentUser.firstName)}" />
+		<input id="firstName" type="text" value="@bind(firstName, currentUser.firstName)}" />
+		<input id="firstName" type="text" value="@bind(firstName, currentUser.firstName)}" />
+		
+		<button name="submit" value="@action{submit, loginBean.doSomething}" />
 	</form>
 </body>
 

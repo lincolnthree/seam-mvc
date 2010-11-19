@@ -31,35 +31,38 @@ import javax.inject.Inject;
 
 import org.jboss.seam.mvc.MVCTest;
 import org.jboss.seam.mvc.template.Bindings;
-import org.jboss.weld.extensions.resourceLoader.Resource;
+import org.jboss.weld.extensions.el.Expressions;
 import org.junit.Test;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class RenderPhaseTest extends MVCTest
+public class ApplyValuesPhaseTest extends MVCTest
 {
    @Inject
-   private RenderPhase render;
+   private ApplyValuesPhase apply;
 
    @Inject
    private Bindings bindings;
 
    @Inject
-   @Resource("org/jboss/seam/mvc/views/hello.xhtml")
-   private InputStream stream;
+   private Expressions expressions;
 
    @Test
-   public void testRenderTemplate() throws Exception
+   public void testApplyValues() throws Exception
    {
+      String name = "name";
+      String value = "lb3";
+
       Map<String, String[]> context = new HashMap<String, String[]>();
-      context.put("world", new String[] { "lincoln" });
+      context.put("name", new String[] { value });
 
-      String output = render.perform(stream, context);
+      InputStream stream = Thread.currentThread().getContextClassLoader()
+               .getResourceAsStream("org/jboss/seam/mvc/views/hello.xhtml");
+      apply.perform(stream, context);
 
-      System.out.println(output);
-      assertEquals("exampleBean.name", bindings.get("name"));
+      assertEquals("exampleBean.name", bindings.get(name));
+      assertEquals(value, expressions.evaluateValueExpression(expressions.toExpression(bindings.get(name))));
    }
-
 }

@@ -19,47 +19,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.lifecycle;
+package org.jboss.seam.mvc.cdi;
 
-import static org.junit.Assert.assertEquals;
+import javax.enterprise.inject.spi.BeanManager;
 
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-
-import org.jboss.seam.mvc.MVCTest;
-import org.jboss.seam.mvc.template.Bindings;
-import org.jboss.weld.extensions.resourceLoader.Resource;
-import org.junit.Test;
+import org.jboss.weld.extensions.beanManager.BeanManagerProvider;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class RenderPhaseTest extends MVCTest
+public class StaticBeanManagerProvider implements BeanManagerProvider
 {
-   @Inject
-   private RenderPhase render;
-
-   @Inject
-   private Bindings bindings;
-
-   @Inject
-   @Resource("org/jboss/seam/mvc/views/hello.xhtml")
-   private InputStream stream;
-
-   @Test
-   public void testRenderTemplate() throws Exception
+   @Override
+   public int getPrecedence()
    {
-      Map<String, String[]> context = new HashMap<String, String[]>();
-      context.put("world", new String[] { "lincoln" });
+      return 0;
+   }
 
-      String output = render.perform(stream, context);
-
-      System.out.println(output);
-      assertEquals("exampleBean.name", bindings.get("name"));
+   @Override
+   public BeanManager getBeanManager()
+   {
+      return BeanManagerCaptureExtension.getManager();
    }
 
 }

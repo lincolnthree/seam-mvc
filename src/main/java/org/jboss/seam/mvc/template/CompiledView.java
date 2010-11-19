@@ -19,47 +19,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.lifecycle;
+package org.jboss.seam.mvc.template;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import org.jboss.seam.mvc.MVCTest;
-import org.jboss.seam.mvc.template.Bindings;
-import org.jboss.weld.extensions.resourceLoader.Resource;
-import org.junit.Test;
+import org.mvel2.integration.VariableResolverFactory;
+import org.mvel2.templates.CompiledTemplate;
+import org.mvel2.templates.TemplateRegistry;
+import org.mvel2.templates.TemplateRuntime;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class RenderPhaseTest extends MVCTest
+public class CompiledView
 {
-   @Inject
-   private RenderPhase render;
+   private final CompiledTemplate template;
+   private final VariableResolverFactory resolver;
+   private final TemplateRegistry registry;
 
-   @Inject
-   private Bindings bindings;
-
-   @Inject
-   @Resource("org/jboss/seam/mvc/views/hello.xhtml")
-   private InputStream stream;
-
-   @Test
-   public void testRenderTemplate() throws Exception
+   public CompiledView(final CompiledTemplate template, final VariableResolverFactory resolver,
+            final TemplateRegistry registry)
    {
-      Map<String, String[]> context = new HashMap<String, String[]>();
-      context.put("world", new String[] { "lincoln" });
-
-      String output = render.perform(stream, context);
-
-      System.out.println(output);
-      assertEquals("exampleBean.name", bindings.get("name"));
+      this.template = template;
+      this.resolver = resolver;
+      this.registry = registry;
    }
 
+   public String render(final Map context)
+   {
+      return (String) TemplateRuntime.execute(template, context, resolver, registry);
+   }
 }

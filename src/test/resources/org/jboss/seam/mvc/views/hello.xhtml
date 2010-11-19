@@ -1,4 +1,16 @@
-@includeNamed{'forms'}
+<html>
 
-@code{bind('blah');}
-Hi, this is the world of @{world}.
+<head>
+	<title>Simple Form</title>
+</head>
+<body>
+	<h1>Hi, this is the world of templating.</h1>
+	
+	<label for="firstName">First Name:</label><br/>
+	<form action="@@view{}">
+		<input id="name" type="text" value="@bind{name : exampleBean.name}" />
+		<button name="submit" type="submit" value="@@action{submit, exampleBean.submit}"></button>
+	</form>
+</body>
+
+</html>

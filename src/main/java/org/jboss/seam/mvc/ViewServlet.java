@@ -22,52 +22,100 @@
 package org.jboss.seam.mvc;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 
 import javax.inject.Inject;
-import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.jboss.weld.extensions.el.Expressions;
+import org.jboss.seam.mvc.lifecycle.ApplyValuesPhase;
+import org.jboss.seam.mvc.lifecycle.RenderPhase;
+
+import com.ocpsoft.pretty.PrettyContext;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class ViewServlet implements Servlet
+@WebServlet(name = "Seam MVC", urlPatterns = { "/mvc/*" }, loadOnStartup = 1, asyncSupported = true)
+public class ViewServlet extends HttpServlet
 {
+   private static final long serialVersionUID = 8641290779641399526L;
+
    @Inject
-   private Expressions el;
+   private ApplyValuesPhase applyValuesPhase;
+   @Inject
+   private RenderPhase renderPhase;
 
-   @Override
-   public void destroy()
-   {
-   }
-
-   @Override
-   public ServletConfig getServletConfig()
-   {
-      return null;
-   }
-
-   @Override
-   public String getServletInfo()
-   {
-      return null;
-   }
+   private ServletConfig config;
 
    @Override
    public void init(final ServletConfig config) throws ServletException
    {
-
+      System.out.println("Starting Seam MVC");
+      this.config = config;
    }
 
    @Override
-   public void service(final ServletRequest request, final ServletResponse response) throws ServletException,
+   protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException,
             IOException
    {
+      InputStream input = getTemplate(req);
+      if (input != null)
+      {
+         // OutputStream output = resp.getOutputStream();
+         String written = renderPhase.perform(input, req.getParameterMap());
+         resp.getWriter().write(written);
+         // System.out.println(written);
+         // output.flush();
+         // output.close();
+      }
+      else
+      {
+         PrettyContext.getCurrentInstance().sendError(404);
+      }
    }
 
+   @Override
+   protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException,
+            IOException
+   {
+      InputStream input = getTemplate(req);
+      if (input != null)
+      {
+         applyValuesPhase.perform(input, req.getParameterMap());
+
+         String written = renderPhase.perform(input, req.getParameterMap());
+         resp.getWriter().write(written);
+      }
+      else
+      {
+         PrettyContext.getCurrentInstance().sendError(404);
+      }
+   }
+
+   private InputStream getTemplate(final HttpServletRequest req)
+   {
+      String requestURI = req.getRequestURI();
+      requestURI = PrettyContext.getCurrentInstance(req).stripContextPath(requestURI);
+
+      Collection<String> mappings = config.getServletContext().getServletRegistration(config.getServletName())
+               .getMappings();
+      for (String m : mappings)
+      {
+         m = m.replaceAll("*", "");
+         if (requestURI.startsWith(m))
+         {
+            requestURI = requestURI.substring(m.length());
+         }
+      }
+
+      InputStream input = req.getServletContext().getResourceAsStream(requestURI);
+      return input;
+   }
 }

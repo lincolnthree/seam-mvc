@@ -19,9 +19,10 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.lifecycle;
+package org.jboss.seam.mvc.template;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -30,36 +31,45 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.jboss.seam.mvc.MVCTest;
-import org.jboss.seam.mvc.template.Bindings;
 import org.jboss.weld.extensions.resourceLoader.Resource;
 import org.junit.Test;
+import org.mvel2.templates.util.TemplateOutputStream;
+import org.mvel2.templates.util.io.StringAppenderStream;
+import org.mvel2.util.StringAppender;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
- * 
  */
-public class RenderPhaseTest extends MVCTest
+public class CompositeTemplateTest extends MVCTest
 {
    @Inject
-   private RenderPhase render;
+   private ViewCompiler compiler;
 
    @Inject
-   private Bindings bindings;
+   private Definitions defs;
 
    @Inject
-   @Resource("org/jboss/seam/mvc/views/hello.xhtml")
+   @Resource("org/jboss/seam/mvc/views/compositing.xhtml")
    private InputStream stream;
 
    @Test
-   public void testRenderTemplate() throws Exception
+   public void testDefinitionsExtracted() throws Exception
    {
+      String name = "name";
+      String value = "lb3";
+
       Map<String, String[]> context = new HashMap<String, String[]>();
-      context.put("world", new String[] { "lincoln" });
+      context.put(name, new String[] { value });
 
-      String output = render.perform(stream, context);
+      CompiledView view = compiler.compile(stream);
+      view.render(context);
+      StringAppender appender = new StringAppender();
+      TemplateOutputStream output = new StringAppenderStream(appender);
+      defs.get("body").eval(output);
 
-      System.out.println(output);
-      assertEquals("exampleBean.name", bindings.get("name"));
+      String string = appender.toString();
+      System.out.println(string);
+      assertNotNull(string);
+      assertTrue(string.contains("@view{}"));
    }
-
 }
