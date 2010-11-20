@@ -80,8 +80,14 @@ public class DefineNode extends ContextualNode
    @Override
    public boolean demarcate(final Node terminatingNode, final char[] template)
    {
-      definition = next;
-      next.next = new EndNode();
+      Node n = definition = next;
+
+      while (n.getNext() != null)
+      {
+         n = n.next;
+      }
+
+      n.next = new EndNode();
       next = terminus;
       return false;
    }

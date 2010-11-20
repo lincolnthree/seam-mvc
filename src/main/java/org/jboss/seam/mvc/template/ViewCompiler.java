@@ -88,6 +88,8 @@ public class ViewCompiler
       // remember we chained 'functions' to 'factory'
       CompiledTemplate template = TemplateCompiler.compileTemplate(input, nodes);
 
+      // extract Definitions and @insert{} into parameters for rendering
+
       CompiledView view = new CompiledView(template, factory, registry);
       return view;
    }

@@ -49,7 +49,7 @@ public class CompositeTemplateTest extends MVCTest
    private Definitions defs;
 
    @Inject
-   @Resource("org/jboss/seam/mvc/views/compositing.xhtml")
+   @Resource("org/jboss/seam/mvc/views/composite/definitions.xhtml")
    private InputStream stream;
 
    @Test
