@@ -22,7 +22,6 @@
 package org.jboss.seam.mvc;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 
 import javax.inject.Inject;
@@ -35,6 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.seam.mvc.lifecycle.ApplyValuesPhase;
 import org.jboss.seam.mvc.lifecycle.RenderPhase;
+import org.jboss.seam.mvc.template.CompiledView;
+import org.jboss.seam.mvc.template.ViewCompiler;
 
 import com.ocpsoft.pretty.PrettyContext;
 
@@ -47,6 +48,8 @@ public class ViewServlet extends HttpServlet
 {
    private static final long serialVersionUID = 8641290779641399526L;
 
+   @Inject
+   private ViewCompiler compiler;
    @Inject
    private ApplyValuesPhase applyValuesPhase;
    @Inject
@@ -65,7 +68,7 @@ public class ViewServlet extends HttpServlet
    protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException,
             IOException
    {
-      InputStream input = getTemplate(req);
+      CompiledView input = getTemplate(req);
       if (input != null)
       {
          // OutputStream output = resp.getOutputStream();
@@ -85,7 +88,7 @@ public class ViewServlet extends HttpServlet
    protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException,
             IOException
    {
-      InputStream input = getTemplate(req);
+      CompiledView input = getTemplate(req);
       if (input != null)
       {
          applyValuesPhase.perform(input, req.getParameterMap());
@@ -99,7 +102,7 @@ public class ViewServlet extends HttpServlet
       }
    }
 
-   private InputStream getTemplate(final HttpServletRequest req)
+   private CompiledView getTemplate(final HttpServletRequest req)
    {
       String requestURI = req.getRequestURI();
       requestURI = PrettyContext.getCurrentInstance(req).stripContextPath(requestURI);
@@ -115,7 +118,7 @@ public class ViewServlet extends HttpServlet
          }
       }
 
-      InputStream input = req.getServletContext().getResourceAsStream(requestURI);
-      return input;
+      CompiledView view = compiler.compile(requestURI);
+      return view;
    }
 }

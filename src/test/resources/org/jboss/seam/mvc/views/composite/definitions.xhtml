@@ -1,11 +1,17 @@
-@define{body}
-<h1>Hi, this is the world of templating.</h1>
+@compose{template.xhtml}
 
-<label for="firstName">First Name:</label><br/>
-<form action="@@view{}">
-	<input id="name" type="text" value="@bind{name : exampleBean.name}" />
-	<button name="submit" type="submit" value="@@action{submit, exampleBean.submit}"></button>
-</form>
+	@@param{title, "The title"}
+
+	@define{body}
+	<h1>Hi, this is the world of templating.</h1>
+	
+	<label for="firstName">First Name:</label><br/>
+	<form action="@@view{}">
+		<input id="name" type="text" value="@bind{name : exampleBean.name}" />
+		<button name="submit" type="submit" value="@@action{submit, exampleBean.submit}"></button>
+	</form>
+	@end{}
+
 @end{}
 
-@@set{title, The title}		
+		

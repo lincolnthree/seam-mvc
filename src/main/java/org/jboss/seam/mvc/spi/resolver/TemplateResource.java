@@ -19,15 +19,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.template;
+package org.jboss.seam.mvc.spi.resolver;
 
-import javax.enterprise.context.RequestScoped;
+import java.io.InputStream;
 
 /**
+ * Handle to a templatable resource.
+ * 
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-@RequestScoped
-public class Bindings extends Property<String, String>
+public interface TemplateResource<T>
 {
+   String getPath();
+
+   InputStream getInputStream();
+
+   T getUnderlyingResource();
+
+   TemplateResolver<T> getResolvedBy();
 }

@@ -21,42 +21,51 @@
  */
 package org.jboss.seam.mvc.template;
 
-import javax.enterprise.inject.spi.BeanManager;
+import java.net.URL;
 
-import org.jboss.seam.mvc.cdi.BeanManagerUtils;
-import org.jboss.weld.extensions.beanManager.BeanManagerAccessor;
-import org.mvel2.templates.res.Node;
+import javax.enterprise.context.RequestScoped;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-@SuppressWarnings("serial")
-public abstract class ContextualNode extends Node
+@RequestScoped
+public class CompositionContext extends TemplateContext<String, Definition>
 {
-   public ContextualNode()
+   private String requested;
+   private URL current;
+
+   public boolean isRequested()
    {
-      super();
-      init();
+      return (requested != null) && !requested.trim().isEmpty();
    }
 
-   public ContextualNode(final int begin, final String name, final char[] template, final int start, final int end,
-            final Node next)
+   public void setRequestedTemplate(final String template)
    {
-      super(begin, name, template, start, end, next);
-      init();
+      this.requested = template;
    }
 
-   public ContextualNode(final int begin, final String name, final char[] template, final int start, final int end)
+   public String getRequestedTemplate()
    {
-      super(begin, name, template, start, end);
-      init();
+      return requested;
    }
 
-   private void init()
+   @Override
+   public void clear()
    {
-      BeanManager manager = BeanManagerAccessor.getBeanManager();
-      BeanManagerUtils.injectNonContextualInstance(manager, this);
+      super.clear();
+      this.requested = null;
+      this.current = null;
+   }
+
+   public URL getCurrentTemplate()
+   {
+      return current;
+   }
+
+   public void setCurrentTemplate(final URL template)
+   {
+      this.current = template;
    }
 
 }

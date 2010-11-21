@@ -21,43 +21,25 @@
  */
 package org.jboss.seam.mvc.template;
 
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
 
-import org.jboss.seam.mvc.spi.resolver.TemplateResource;
-import org.jboss.seam.mvc.template.resolver.TemplateResolverFactory;
-import org.mvel2.integration.VariableResolverFactory;
+import org.junit.Test;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateCompiler;
-import org.mvel2.templates.TemplateRegistry;
 import org.mvel2.templates.TemplateRuntime;
-import org.mvel2.templates.res.Node;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class CompiledView
+public class MVELSyntaxTest
 {
-   private final CompiledTemplate template;
-   private final VariableResolverFactory factory;
-   private final TemplateResolverFactory resolverFactory;
-   private final TemplateRegistry registry;
-
-   public CompiledView(final ELVariableResolverFactory factory, final TemplateRegistry registry,
-            final TemplateResolverFactory resolverFactory, final TemplateResource<?> resource,
-            final Map<String, Class<? extends Node>> nodes)
+   @Test
+   public void testOrbTabWithoutBraces() throws Exception
    {
-      this.factory = factory;
-      this.registry = registry;
-      this.resolverFactory = resolverFactory;
+      CompiledTemplate template = TemplateCompiler.compileTemplate("@if{true}hi@end{}");
+      String result = (String) TemplateRuntime.execute(template);
 
-      template = TemplateCompiler.compileTemplate(resource.getInputStream(), nodes);
-   }
-
-   public String render(final Map context)
-   {
-      String result = (String) TemplateRuntime.execute(template, context, factory, registry);
-
-      return result;
+      assertEquals("hi", result);
    }
 }

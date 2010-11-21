@@ -46,7 +46,7 @@ public class CompositeTemplateTest extends MVCTest
    private ViewCompiler compiler;
 
    @Inject
-   private Definitions defs;
+   private CompositionContext defs;
 
    @Inject
    @Resource("org/jboss/seam/mvc/views/composite/definitions.xhtml")

@@ -19,83 +19,59 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.template;
-
-import java.util.Queue;
+package org.jboss.seam.mvc.template.nodes;
 
 import javax.inject.Inject;
 
-import org.jboss.seam.mvc.util.Tokenizer;
-import org.jboss.weld.extensions.el.Expressions;
+import org.jboss.seam.mvc.template.CompositionContext;
 import org.mvel2.CompileException;
 import org.mvel2.integration.VariableResolverFactory;
 import org.mvel2.templates.TemplateRuntime;
-import org.mvel2.templates.res.EndNode;
 import org.mvel2.templates.res.Node;
-import org.mvel2.templates.res.TerminalNode;
 import org.mvel2.templates.util.TemplateOutputStream;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class DefineNode extends ContextualNode
+public class ComposeNode extends ContextualNode
 {
-   private static final String DELIM = ",";
-
-   public DefineNode()
-   {
-      super();
-      terminus = new TerminalNode();
-   }
+   private static final long serialVersionUID = -9214745288595708748L;
 
    @Inject
-   private Expressions expressions;
-
-   @Inject
-   private Bindings bindings;
-
-   @Inject
-   private Definitions defs;
-
-   private Node definition;
+   private CompositionContext composition;
 
    @Override
    public Object eval(final TemplateRuntime runtime, final TemplateOutputStream appender, final Object ctx,
             final VariableResolverFactory factory)
    {
       String line = new String(contents);
-      Queue<String> tokens = Tokenizer.tokenize(DELIM, line);
-
-      if (tokens.isEmpty())
+      if ((line == null) || line.isEmpty())
       {
-         throw new CompileException("@define{ ... } expects 1 argument, got @define{" + line + "}");
+         throw new CompileException("@" + getName()
+                  + "{ ...template... } requires 1 parameter, instead received @" + getName() + "{"
+                  + line + "}");
       }
 
-      defs.put(line.trim(), new Definition(runtime, ctx, factory, definition));
+      // TODO consider evaluating this for dynamic template names
+      String requested = line.trim();
 
+      if ((requested != null) && !composition.isRequested())
+      {
+         composition.setRequestedTemplate(requested);
+      }
+      else if (composition.isRequested())
+      {
+         throw new CompileException("Duplicate @" + getName()
+                  + "{" + getName() + "} detected in template: <template name?>");
+      }
       return next != null ? next.eval(runtime, appender, ctx, factory) : null;
    }
 
    @Override
    public boolean demarcate(final Node terminatingNode, final char[] template)
    {
-      Node n = definition = next;
-
-      while (n.getNext() != null)
-      {
-         n = n.next;
-      }
-
-      n.next = new EndNode();
-      next = terminus;
       return false;
-   }
-
-   @Override
-   public boolean isOpenNode()
-   {
-      return true;
    }
 
 }

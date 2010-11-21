@@ -19,12 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.template;
+package org.jboss.seam.mvc.template.nodes;
 
 import java.util.Queue;
 
 import javax.inject.Inject;
 
+import org.jboss.seam.mvc.template.BindingContext;
 import org.jboss.seam.mvc.util.Tokenizer;
 import org.jboss.weld.extensions.el.Expressions;
 import org.mvel2.CompileException;
@@ -46,7 +47,7 @@ public class BindingNode extends ContextualNode
    private Expressions expressions;
 
    @Inject
-   private Bindings bindings;
+   private BindingContext bindings;
 
    @Override
    public Object eval(final TemplateRuntime runtime, final TemplateOutputStream appender, final Object ctx,

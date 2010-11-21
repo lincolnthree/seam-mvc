@@ -30,7 +30,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.jboss.seam.mvc.MVCTest;
-import org.jboss.seam.mvc.template.Bindings;
+import org.jboss.seam.mvc.template.BindingContext;
 import org.jboss.weld.extensions.el.Expressions;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class ApplyValuesPhaseTest extends MVCTest
    private ApplyValuesPhase apply;
 
    @Inject
-   private Bindings bindings;
+   private BindingContext bindings;
 
    @Inject
    private Expressions expressions;

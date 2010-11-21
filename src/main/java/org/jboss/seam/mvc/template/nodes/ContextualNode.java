@@ -19,34 +19,44 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.template;
+package org.jboss.seam.mvc.template.nodes;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import javax.enterprise.inject.spi.BeanManager;
+
+import org.jboss.seam.mvc.cdi.BeanManagerUtils;
+import org.jboss.weld.extensions.beanManager.BeanManagerAccessor;
+import org.mvel2.templates.res.Node;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public abstract class Property<E, T>
+@SuppressWarnings("serial")
+public abstract class ContextualNode extends Node
 {
-   private static final long serialVersionUID = -7871830377471038387L;
-   private final Map<E, T> map = new HashMap<E, T>();
-
-   public T put(final E name, final T el)
+   public ContextualNode()
    {
-      return map.put(name, el);
+      super();
+      init();
    }
 
-   public T get(final E name)
+   public ContextualNode(final int begin, final String name, final char[] template, final int start, final int end,
+            final Node next)
    {
-      return map.get(name);
+      super(begin, name, template, start, end, next);
+      init();
    }
 
-   public Set<Entry<E, T>> entrySet()
+   public ContextualNode(final int begin, final String name, final char[] template, final int start, final int end)
    {
-      return map.entrySet();
+      super(begin, name, template, start, end);
+      init();
    }
+
+   private void init()
+   {
+      BeanManager manager = BeanManagerAccessor.getBeanManager();
+      BeanManagerUtils.injectNonContextualInstance(manager, this);
+   }
+
 }

@@ -21,7 +21,6 @@
  */
 package org.jboss.seam.mvc.lifecycle;
 
-import java.io.InputStream;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -37,9 +36,8 @@ public class RenderPhase implements Phase
    @Inject
    private ViewCompiler compiler;
 
-   public String perform(final InputStream input, final Map<String, String[]> parameterMap)
+   public String perform(final CompiledView view, final Map<String, String[]> parameterMap)
    {
-      CompiledView view = compiler.compile(input);
       return view.render(parameterMap);
    }
 

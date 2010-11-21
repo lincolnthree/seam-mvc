@@ -19,47 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.lifecycle;
-
-import static org.junit.Assert.assertEquals;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-
-import org.jboss.seam.mvc.MVCTest;
-import org.jboss.seam.mvc.template.BindingContext;
-import org.jboss.weld.extensions.resourceLoader.Resource;
-import org.junit.Test;
+package org.jboss.seam.mvc.spi.resolver;
 
 /**
- * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
+ * Define a strategy for resolving {@link TemplateResource} assets.
  * 
+ * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  */
-public class RenderPhaseTest extends MVCTest
+public interface TemplateResolver<T>
 {
-   @Inject
-   private RenderPhase render;
+   Class<T> getType();
 
-   @Inject
-   private BindingContext bindings;
+   public TemplateResource<T> resolve(String target);
 
-   @Inject
-   @Resource("org/jboss/seam/mvc/views/hello.xhtml")
-   private InputStream stream;
-
-   @Test
-   public void testRenderTemplate() throws Exception
-   {
-      Map<String, String[]> context = new HashMap<String, String[]>();
-      context.put("world", new String[] { "lincoln" });
-
-      String output = render.perform(stream, context);
-
-      System.out.println(output);
-      assertEquals("exampleBean.name", bindings.get("name"));
-   }
-
+   public TemplateResource<T> resolveRelative(TemplateResource<T> origin, String target);
 }

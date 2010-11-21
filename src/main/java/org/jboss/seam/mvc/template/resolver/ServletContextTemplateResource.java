@@ -19,47 +19,55 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.lifecycle;
-
-import static org.junit.Assert.assertEquals;
+package org.jboss.seam.mvc.template.resolver;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
-import javax.inject.Inject;
+import javax.servlet.ServletContext;
 
-import org.jboss.seam.mvc.MVCTest;
-import org.jboss.seam.mvc.template.BindingContext;
-import org.jboss.weld.extensions.resourceLoader.Resource;
-import org.junit.Test;
+import org.jboss.seam.mvc.spi.resolver.TemplateResolver;
+import org.jboss.seam.mvc.spi.resolver.TemplateResource;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class RenderPhaseTest extends MVCTest
+public class ServletContextTemplateResource implements TemplateResource<ServletContext>
 {
-   @Inject
-   private RenderPhase render;
+   private final TemplateResolver<ServletContext> resolver;
+   private final String path;
+   private final ServletContext context;
 
-   @Inject
-   private BindingContext bindings;
-
-   @Inject
-   @Resource("org/jboss/seam/mvc/views/hello.xhtml")
-   private InputStream stream;
-
-   @Test
-   public void testRenderTemplate() throws Exception
+   public ServletContextTemplateResource(final TemplateResolver<ServletContext> resolver, final ServletContext context,
+            final String target)
    {
-      Map<String, String[]> context = new HashMap<String, String[]>();
-      context.put("world", new String[] { "lincoln" });
+      this.resolver = resolver;
+      this.path = target;
+      this.context = context;
+   }
 
-      String output = render.perform(stream, context);
+   @Override
+   public String getPath()
+   {
+      return path;
+   }
 
-      System.out.println(output);
-      assertEquals("exampleBean.name", bindings.get("name"));
+   @Override
+   public InputStream getInputStream()
+   {
+      return context.getResourceAsStream(path);
+   }
+
+   @Override
+   public ServletContext getUnderlyingResource()
+   {
+      return context;
+   }
+
+   @Override
+   public TemplateResolver<ServletContext> getResolvedBy()
+   {
+      return resolver;
    }
 
 }

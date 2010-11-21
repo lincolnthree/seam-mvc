@@ -21,7 +21,6 @@
  */
 package org.jboss.seam.mvc.lifecycle;
 
-import java.io.InputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -29,7 +28,7 @@ import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.inject.Inject;
 
-import org.jboss.seam.mvc.template.Bindings;
+import org.jboss.seam.mvc.template.BindingContext;
 import org.jboss.seam.mvc.template.CompiledView;
 import org.jboss.seam.mvc.template.ViewCompiler;
 import org.jboss.weld.extensions.el.Expressions;
@@ -43,14 +42,13 @@ public class ApplyValuesPhase implements Phase
    private ViewCompiler compiler;
 
    @Inject
-   private Bindings bindings;
+   private BindingContext bindings;
 
    @Inject
    private Expressions expressions;
 
-   public void perform(final InputStream input, final Map<String, String[]> parameterMap)
+   public void perform(final CompiledView view, final Map<String, String[]> parameterMap)
    {
-      CompiledView view = compiler.compile(input);
       view.render(parameterMap);
       for (Entry<String, String> entry : bindings.entrySet())
       {

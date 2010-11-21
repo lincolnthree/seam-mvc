@@ -21,15 +21,18 @@
  */
 package org.jboss.seam.mvc.template;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.jboss.seam.mvc.spi.resolver.TemplateResource;
+import org.jboss.seam.mvc.template.nodes.BindingNode;
+import org.jboss.seam.mvc.template.nodes.ComposeNode;
+import org.jboss.seam.mvc.template.nodes.DefineNode;
+import org.jboss.seam.mvc.template.resolver.TemplateResolverFactory;
 import org.mvel2.integration.impl.MapVariableResolverFactory;
-import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.SimpleTemplateRegistry;
 import org.mvel2.templates.TemplateCompiler;
 import org.mvel2.templates.TemplateRegistry;
@@ -45,6 +48,7 @@ public class ViewCompiler
    private final ELVariableResolverFactory factory;
    private TemplateRegistry registry;
    private final MapVariableResolverFactory functions;
+   private final TemplateResolverFactory resolverFactory;
 
    @PostConstruct
    public void init()
@@ -66,31 +70,28 @@ public class ViewCompiler
    }
 
    @Inject
-   public ViewCompiler(final ELVariableResolverFactory factory)
+   public ViewCompiler(final ELVariableResolverFactory factory,
+            final TemplateResolverFactory resolverFactory)
    {
       this.factory = factory;
+      this.resolverFactory = resolverFactory;
 
       // create a map resolve to hold the functions we want to inject, and chain
       // the ELVariableResolverFactory to this factory.
       functions = new MapVariableResolverFactory(new HashMap<String, Object>(), factory);
    }
 
-   public CompiledView compile(final InputStream input)
+   public CompiledView compile(final String path)
    {
       Map<String, Class<? extends Node>> nodes = new HashMap<String, Class<? extends Node>>();
 
       nodes.put("bind", BindingNode.class);
       nodes.put("define", DefineNode.class);
-      // nodes.put("action", ActionNode.class);
-      // nodes.put("view", ViewNode.class);
+      nodes.put("compose", ComposeNode.class);
 
-      // evaulated the template with the functions resolver as the outer resolver
-      // remember we chained 'functions' to 'factory'
-      CompiledTemplate template = TemplateCompiler.compileTemplate(input, nodes);
+      TemplateResource<?> resource = resolverFactory.resolve(path);
 
-      // extract Definitions and @insert{} into parameters for rendering
-
-      CompiledView view = new CompiledView(template, factory, registry);
+      CompiledView view = new CompiledView(factory, registry, resolverFactory, resource, nodes);
       return view;
    }
 }
