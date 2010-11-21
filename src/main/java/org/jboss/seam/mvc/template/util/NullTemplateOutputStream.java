@@ -19,20 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.lifecycle;
+package org.jboss.seam.mvc.template.util;
 
-import java.util.Map;
-
-import org.jboss.seam.mvc.template.CompiledView;
+import org.mvel2.templates.util.TemplateOutputStream;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
+ * 
  */
-public class RenderPhase implements Phase
+public class NullTemplateOutputStream implements TemplateOutputStream
 {
-   public String perform(final CompiledView view, final Map<Object, Object> parameterMap)
+
+   @Override
+   public TemplateOutputStream append(final CharSequence c)
    {
-      return view.render(parameterMap);
+      return null;
+   }
+
+   @Override
+   public TemplateOutputStream append(final char[] c)
+   {
+      return null;
    }
 
 }

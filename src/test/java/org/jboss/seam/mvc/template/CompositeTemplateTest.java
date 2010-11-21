@@ -21,21 +21,19 @@
  */
 package org.jboss.seam.mvc.template;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.jboss.seam.mvc.MVCTest;
-import org.jboss.weld.extensions.resourceLoader.Resource;
+import org.jboss.seam.mvc.template.resolver.ClassLoaderTemplateResolver;
+import org.jboss.seam.mvc.template.resolver.TemplateResolverFactory;
 import org.junit.Test;
-import org.mvel2.templates.util.TemplateOutputStream;
-import org.mvel2.templates.util.io.StringAppenderStream;
-import org.mvel2.util.StringAppender;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
@@ -46,11 +44,11 @@ public class CompositeTemplateTest extends MVCTest
    private ViewCompiler compiler;
 
    @Inject
-   private CompositionContext defs;
-
-   @Inject
-   @Resource("org/jboss/seam/mvc/views/composite/definitions.xhtml")
-   private InputStream stream;
+   protected void init(final TemplateResolverFactory factory)
+   {
+      compiler.getTemplateResolverFactory().addResolver(
+               new ClassLoaderTemplateResolver(this.getClass().getClassLoader()));
+   }
 
    @Test
    public void testDefinitionsExtracted() throws Exception
@@ -58,18 +56,20 @@ public class CompositeTemplateTest extends MVCTest
       String name = "name";
       String value = "lb3";
 
-      Map<String, String[]> context = new HashMap<String, String[]>();
+      Map<Object, Object> context = new HashMap<Object, Object>();
       context.put(name, new String[] { value });
 
-      CompiledView view = compiler.compile(stream);
-      view.render(context);
-      StringAppender appender = new StringAppender();
-      TemplateOutputStream output = new StringAppenderStream(appender);
-      defs.get("body").eval(output);
+      CompiledView view = compiler.compile("org/jboss/seam/mvc/views/composite/definitions.xhtml");
+      String output = view.render(context);
 
-      String string = appender.toString();
-      System.out.println(string);
-      assertNotNull(string);
-      assertTrue(string.contains("@view{}"));
+      // CompositionContext defs = CompositionContext.extractFromMap(context);
+      // assertNotNull(defs.get("body"));
+
+      System.out.println(output);
+      assertNotNull(output);
+      assertTrue(output.contains("@view{}"));
+      assertTrue(output.contains("<html>"));
+      assertTrue(output.contains("Default is rendered if no def is found."));
+      assertFalse(output.contains("This should be ignored."));
    }
 }

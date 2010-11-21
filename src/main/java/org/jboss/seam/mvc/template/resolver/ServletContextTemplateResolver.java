@@ -21,7 +21,6 @@
  */
 package org.jboss.seam.mvc.template.resolver;
 
-import java.io.File;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -29,6 +28,7 @@ import javax.servlet.ServletContext;
 import org.jboss.seam.mvc.spi.resolver.TemplateResolver;
 import org.jboss.seam.mvc.spi.resolver.TemplateResource;
 import org.jboss.seam.mvc.util.Assert;
+import org.jboss.seam.mvc.util.Paths;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
@@ -50,41 +50,24 @@ public class ServletContextTemplateResolver implements TemplateResolver<ServletC
    }
 
    @Override
-   public TemplateResource<ServletContext> resolve(final String target)
+   public TemplateResource<ServletContext> resolve(final String path)
    {
-      if (validResource(target))
+      Assert.notNull(path, "Resource path must not be null.");
+      if (validResource(path))
       {
-         return new ServletContextTemplateResource(this, context, target);
+         return new ServletContextTemplateResource(this, context, path);
       }
       return null;
    }
 
    @Override
    public TemplateResource<ServletContext> resolveRelative(final TemplateResource<ServletContext> origin,
-            String relativePath)
+            final String relativePath)
    {
       Assert.notNull(origin, "Origin resource must not be null.");
       Assert.notNull(relativePath, "Relative resource path must not be null.");
-      relativePath = relativePath.trim();
-
-      while (relativePath.startsWith("."))
-      {
-         if (relativePath.startsWith(".." + File.separator))
-         {
-            relativePath.substring(3);
-         }
-         if (relativePath.startsWith("." + File.separator))
-         {
-            relativePath.substring(2);
-         }
-      }
-
       String path = origin.getPath();
-      if (path.endsWith(File.separator) && relativePath.startsWith(File.separator))
-      {
-         relativePath = relativePath.substring(1);
-      }
-      path = path + relativePath;
+      path = Paths.calculateRelativePath(path, relativePath);
 
       if (validResource(path))
       {

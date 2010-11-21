@@ -19,64 +19,58 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.template;
+package org.jboss.seam.mvc.template.resolver;
 
-import java.util.Map;
+import java.io.InputStream;
 
+import org.jboss.seam.mvc.spi.resolver.TemplateResolver;
 import org.jboss.seam.mvc.spi.resolver.TemplateResource;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class CompositionContext extends TemplateContext<String, Definition>
+public class ClassLoaderTemplateResource implements TemplateResource<ClassLoader>
 {
-   private final CompositionContext context;
-   private TemplateResource<?> resource;
 
-   public CompositionContext()
+   private final ClassLoaderTemplateResolver resolver;
+   private final ClassLoader loader;
+   private final String path;
+
+   /**
+    * @param classLoaderTemplateResolver
+    * @param resource
+    */
+   public ClassLoaderTemplateResource(final ClassLoaderTemplateResolver resolver, final ClassLoader loader,
+            final String path)
    {
-      context = null;
+      this.resolver = resolver;
+      this.loader = loader;
+      this.path = path;
    }
 
    @Override
-   public Definition get(final String name)
+   public String getPath()
    {
-      Definition result = super.get(name);
-      if ((result == null) && (context != null))
-      {
-         result = context.get(name);
-      }
-      return result;
+      return path;
    }
 
-   public static CompositionContext extractFromMap(final Map<Object, Object> map)
+   @Override
+   public InputStream getInputStream()
    {
-      return (CompositionContext) map.get(CompiledView.CONTEXT_KEY);
+      return loader.getResourceAsStream(path);
    }
 
-   public static CompositionContext storeInMap(final Map<Object, Object> map, final CompositionContext context)
+   @Override
+   public ClassLoader getUnderlyingResource()
    {
-      return (CompositionContext) map.put(context, CompiledView.CONTEXT_KEY);
+      return loader;
    }
 
-   public CompositionContext(final CompositionContext context)
+   @Override
+   public TemplateResolver<ClassLoader> getResolvedBy()
    {
-      this.context = context;
+      return resolver;
    }
 
-   public void setTemplateResource(final TemplateResource<?> resource)
-   {
-      this.resource = resource;
-   }
-
-   public TemplateResource<?> getTemplateResource()
-   {
-      return resource;
-   }
-
-   public CompositionContext getWrapped()
-   {
-      return context;
-   }
 }

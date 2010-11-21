@@ -1,3 +1,4 @@
+
 @compose{template.xhtml}
 
 	@@param{title, "The title"}
@@ -11,7 +12,11 @@
 		<button name="submit" type="submit" value="@@action{submit, exampleBean.submit}"></button>
 	</form>
 	@end{}
+	
+	@define{footer}
+		Footer
+	@end{}
+	
+	This should be ignored.
 
 @end{}
-
-		

@@ -26,6 +26,7 @@ import java.io.File;
 import org.jboss.seam.mvc.spi.resolver.TemplateResolver;
 import org.jboss.seam.mvc.spi.resolver.TemplateResource;
 import org.jboss.seam.mvc.util.Assert;
+import org.jboss.seam.mvc.util.Paths;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
@@ -42,7 +43,7 @@ public class FileTemplateResolver implements TemplateResolver<File>
    @Override
    public TemplateResource<File> resolve(final String path)
    {
-      Assert.notNull(path, "Target resource path must not be null.");
+      Assert.notNull(path, "Resource path must not be null.");
       File file = new File(path);
       if (validResource(file))
       {
@@ -57,26 +58,11 @@ public class FileTemplateResolver implements TemplateResolver<File>
       Assert.notNull(origin, "Origin resource must not be null.");
       Assert.notNull(relativePath, "Relative resource path must not be null.");
       relativePath = relativePath.trim();
-
-      while (relativePath.startsWith("."))
-      {
-         if (relativePath.startsWith(".." + File.separator))
-         {
-            relativePath.substring(3);
-         }
-         if (relativePath.startsWith("." + File.separator))
-         {
-            relativePath.substring(2);
-         }
-      }
-
       String path = origin.getPath();
-      if (path.endsWith(File.separator) && relativePath.startsWith(File.separator))
-      {
-         relativePath = relativePath.substring(1);
-      }
-      File file = new File(path + relativePath);
 
+      path = Paths.calculateRelativePath(path, relativePath);
+
+      File file = new File(path);
       if (validResource(file))
       {
          return new FileTemplateResource(file, this);

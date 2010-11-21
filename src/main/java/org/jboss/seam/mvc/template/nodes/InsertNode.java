@@ -39,26 +39,26 @@ import org.mvel2.templates.util.TemplateOutputStream;
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class DefineNode extends ContextualNode
+public class InsertNode extends ContextualNode
 {
-   private static final long serialVersionUID = 3356732131663865976L;
+   private static final long serialVersionUID = -1285613595891138294L;
+
    private static final String DELIM = ",";
 
-   public DefineNode()
+   public InsertNode()
    {
       super();
       terminus = new TerminalNode();
    }
 
-   private Node definition;
+   private Node defaultContent;
 
    @SuppressWarnings("unchecked")
    @Override
    public Object eval(final TemplateRuntime runtime, final TemplateOutputStream appender, final Object ctx,
             final VariableResolverFactory factory)
    {
-
-      Node n = definition = next;
+      Node n = defaultContent = next;
 
       while (n.getNext() != null)
       {
@@ -77,7 +77,16 @@ public class DefineNode extends ContextualNode
       }
 
       CompositionContext defs = CompositionContext.extractFromMap((Map<Object, Object>) ctx);
-      defs.put(line.trim(), new Definition(runtime, ctx, factory, definition));
+      Definition definition = defs.get(line.trim());
+
+      if (definition == null)
+      {
+         defaultContent.eval(runtime, appender, ctx, factory);
+      }
+      else
+      {
+         definition.eval(appender);
+      }
 
       return next != null ? next.eval(runtime, appender, ctx, factory) : null;
    }

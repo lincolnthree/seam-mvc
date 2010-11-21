@@ -23,7 +23,6 @@ package org.jboss.seam.mvc.lifecycle;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +30,10 @@ import javax.inject.Inject;
 
 import org.jboss.seam.mvc.MVCTest;
 import org.jboss.seam.mvc.template.BindingContext;
-import org.jboss.weld.extensions.resourceLoader.Resource;
+import org.jboss.seam.mvc.template.CompiledView;
+import org.jboss.seam.mvc.template.ViewCompiler;
+import org.jboss.seam.mvc.template.resolver.ClassLoaderTemplateResolver;
+import org.jboss.seam.mvc.template.resolver.TemplateResolverFactory;
 import org.junit.Test;
 
 /**
@@ -47,16 +49,23 @@ public class RenderPhaseTest extends MVCTest
    private BindingContext bindings;
 
    @Inject
-   @Resource("org/jboss/seam/mvc/views/hello.xhtml")
-   private InputStream stream;
+   private ViewCompiler compiler;
+
+   @Inject
+   protected void init(final TemplateResolverFactory factory)
+   {
+      compiler.getTemplateResolverFactory().addResolver(
+               new ClassLoaderTemplateResolver(this.getClass().getClassLoader()));
+   }
 
    @Test
    public void testRenderTemplate() throws Exception
    {
-      Map<String, String[]> context = new HashMap<String, String[]>();
+      Map<Object, Object> context = new HashMap<Object, Object>();
       context.put("world", new String[] { "lincoln" });
 
-      String output = render.perform(stream, context);
+      CompiledView view = compiler.compile("org/jboss/seam/mvc/views/hello.xhtml");
+      String output = render.perform(view, context);
 
       System.out.println(output);
       assertEquals("exampleBean.name", bindings.get("name"));

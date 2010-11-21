@@ -19,20 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.lifecycle;
-
-import java.util.Map;
-
-import org.jboss.seam.mvc.template.CompiledView;
+package org.jboss.seam.mvc.template;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
+ *
  */
-public class RenderPhase implements Phase
+public class Composition
 {
-   public String perform(final CompiledView view, final Map<Object, Object> parameterMap)
-   {
-      return view.render(parameterMap);
-   }
 
 }

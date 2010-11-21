@@ -31,6 +31,7 @@ import org.jboss.seam.mvc.spi.resolver.TemplateResource;
 import org.jboss.seam.mvc.template.nodes.BindingNode;
 import org.jboss.seam.mvc.template.nodes.ComposeNode;
 import org.jboss.seam.mvc.template.nodes.DefineNode;
+import org.jboss.seam.mvc.template.nodes.InsertNode;
 import org.jboss.seam.mvc.template.resolver.TemplateResolverFactory;
 import org.mvel2.integration.impl.MapVariableResolverFactory;
 import org.mvel2.templates.SimpleTemplateRegistry;
@@ -83,15 +84,37 @@ public class ViewCompiler
 
    public CompiledView compile(final String path)
    {
+      Map<String, Class<? extends Node>> nodes = getNodes();
+
+      TemplateResource<?> resource = resolverFactory.resolve(path);
+
+      CompiledView view = new CompiledView(factory, registry, resource, nodes);
+      return view;
+   }
+
+   public CompiledView compileRelative(final TemplateResource<?> templateResource, final String relativePath)
+   {
+      Map<String, Class<? extends Node>> nodes = getNodes();
+
+      TemplateResource<?> resource = resolverFactory.resolveRelative(templateResource, relativePath);
+
+      CompiledView view = new CompiledView(factory, registry, resource, nodes);
+      return view;
+   }
+
+   private Map<String, Class<? extends Node>> getNodes()
+   {
       Map<String, Class<? extends Node>> nodes = new HashMap<String, Class<? extends Node>>();
 
       nodes.put("bind", BindingNode.class);
       nodes.put("define", DefineNode.class);
       nodes.put("compose", ComposeNode.class);
+      nodes.put("insert", InsertNode.class);
+      return nodes;
+   }
 
-      TemplateResource<?> resource = resolverFactory.resolve(path);
-
-      CompiledView view = new CompiledView(factory, registry, resolverFactory, resource, nodes);
-      return view;
+   public TemplateResolverFactory getTemplateResolverFactory()
+   {
+      return resolverFactory;
    }
 }

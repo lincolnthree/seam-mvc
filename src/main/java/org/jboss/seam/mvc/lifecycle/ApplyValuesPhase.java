@@ -21,6 +21,7 @@
  */
 package org.jboss.seam.mvc.lifecycle;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -49,7 +50,10 @@ public class ApplyValuesPhase implements Phase
 
    public void perform(final CompiledView view, final Map<String, String[]> parameterMap)
    {
-      view.render(parameterMap);
+      Map<Object, Object> map = new HashMap<Object, Object>();
+      map.putAll(parameterMap);
+
+      view.render(map);
       for (Entry<String, String> entry : bindings.entrySet())
       {
          String param = entry.getKey();

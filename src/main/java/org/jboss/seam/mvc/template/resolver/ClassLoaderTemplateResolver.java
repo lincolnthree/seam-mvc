@@ -21,74 +21,60 @@
  */
 package org.jboss.seam.mvc.template.resolver;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.jboss.seam.mvc.spi.resolver.TemplateResolver;
 import org.jboss.seam.mvc.spi.resolver.TemplateResource;
 import org.jboss.seam.mvc.util.Assert;
-import org.jboss.weld.extensions.util.service.ServiceLoader;
+import org.jboss.seam.mvc.util.Paths;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
- * 
  */
-@SuppressWarnings("rawtypes")
-public class TemplateResolverFactory implements TemplateResolver<Object>
+public class ClassLoaderTemplateResolver implements TemplateResolver<ClassLoader>
 {
-   ServiceLoader<TemplateResolver> resolvers = null;
+   private final ClassLoader loader;
 
-   Set<TemplateResolver> addedResolvers = new HashSet<TemplateResolver>();
-
-   public void addResolver(final TemplateResolver resolver)
+   public ClassLoaderTemplateResolver(final ClassLoader loader)
    {
-      addedResolvers.add(resolver);
+      Assert.notNull(loader, "ClassLoader must not be null.");
+      this.loader = loader;
    }
 
    @Override
-   @SuppressWarnings("unchecked")
-   public TemplateResource resolve(final String target)
+   public Class<ClassLoader> getType()
    {
-      Assert.notNull(target, "Target resource must not be null.");
-      loadResolvers();
-      TemplateResource<?> resource = null;
-      for (TemplateResolver<?> resolver : addedResolvers)
-      {
-         resource = resolver.resolve(target);
-      }
-      if (resource == null)
-      {
-         for (TemplateResolver<?> resolver : resolvers)
-         {
-            resource = resolver.resolve(target);
-         }
-      }
-      return resource;
+      return ClassLoader.class;
    }
 
    @Override
-   @SuppressWarnings("unchecked")
-   public TemplateResource resolveRelative(final TemplateResource origin, final String relativePath)
+   public TemplateResource<ClassLoader> resolve(final String path)
+   {
+      Assert.notNull(path, "Resource path must not be null.");
+      if (isValid(path))
+      {
+         return new ClassLoaderTemplateResource(this, loader, path);
+      }
+      return null;
+   }
+
+   @Override
+   public TemplateResource<ClassLoader> resolveRelative(final TemplateResource<ClassLoader> origin,
+            final String relativePath)
    {
       Assert.notNull(origin, "Origin resource must not be null.");
       Assert.notNull(relativePath, "Relative resource path must not be null.");
-      TemplateResolver resolver = origin.getResolvedBy();
-      TemplateResource result = resolver.resolveRelative(origin, relativePath);
-      return result;
-   }
+      String path = origin.getPath();
+      path = Paths.calculateRelativePath(path, relativePath);
 
-   private void loadResolvers()
-   {
-      if (resolvers == null)
+      if (isValid(path))
       {
-         resolvers = ServiceLoader.load(TemplateResolver.class);
+         return new ClassLoaderTemplateResource(this, loader, path);
       }
+      return null;
    }
 
-   @Override
-   public Class<Object> getType()
+   private boolean isValid(final String target)
    {
-      return Object.class;
+      return loader.getResource(target) != null;
    }
 
 }

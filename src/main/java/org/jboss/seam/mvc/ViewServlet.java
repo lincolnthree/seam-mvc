@@ -23,6 +23,8 @@ package org.jboss.seam.mvc;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.ServletConfig;
@@ -36,6 +38,8 @@ import org.jboss.seam.mvc.lifecycle.ApplyValuesPhase;
 import org.jboss.seam.mvc.lifecycle.RenderPhase;
 import org.jboss.seam.mvc.template.CompiledView;
 import org.jboss.seam.mvc.template.ViewCompiler;
+import org.jboss.seam.mvc.template.resolver.ServletContextTemplateResolver;
+import org.jboss.seam.mvc.template.resolver.TemplateResolverFactory;
 
 import com.ocpsoft.pretty.PrettyContext;
 
@@ -55,6 +59,9 @@ public class ViewServlet extends HttpServlet
    @Inject
    private RenderPhase renderPhase;
 
+   @Inject
+   private TemplateResolverFactory factory;
+
    private ServletConfig config;
 
    @Override
@@ -62,6 +69,7 @@ public class ViewServlet extends HttpServlet
    {
       System.out.println("Starting Seam MVC");
       this.config = config;
+      factory.addResolver(new ServletContextTemplateResolver(config.getServletContext()));
    }
 
    @Override
@@ -72,7 +80,10 @@ public class ViewServlet extends HttpServlet
       if (input != null)
       {
          // OutputStream output = resp.getOutputStream();
-         String written = renderPhase.perform(input, req.getParameterMap());
+         Map<String, String[]> parameterMap = req.getParameterMap();
+         Map<Object, Object> map = new HashMap<Object, Object>();
+         map.putAll(parameterMap);
+         String written = renderPhase.perform(input, map);
          resp.getWriter().write(written);
          // System.out.println(written);
          // output.flush();
@@ -91,9 +102,12 @@ public class ViewServlet extends HttpServlet
       CompiledView input = getTemplate(req);
       if (input != null)
       {
-         applyValuesPhase.perform(input, req.getParameterMap());
+         Map<String, String[]> parameterMap = req.getParameterMap();
+         applyValuesPhase.perform(input, parameterMap);
+         Map<Object, Object> map = new HashMap<Object, Object>();
+         map.putAll(parameterMap);
 
-         String written = renderPhase.perform(input, req.getParameterMap());
+         String written = renderPhase.perform(input, map);
          resp.getWriter().write(written);
       }
       else

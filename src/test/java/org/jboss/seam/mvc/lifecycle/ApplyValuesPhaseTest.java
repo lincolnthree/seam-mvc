@@ -23,7 +23,6 @@ package org.jboss.seam.mvc.lifecycle;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +30,10 @@ import javax.inject.Inject;
 
 import org.jboss.seam.mvc.MVCTest;
 import org.jboss.seam.mvc.template.BindingContext;
+import org.jboss.seam.mvc.template.CompiledView;
+import org.jboss.seam.mvc.template.ViewCompiler;
+import org.jboss.seam.mvc.template.resolver.ClassLoaderTemplateResolver;
+import org.jboss.seam.mvc.template.resolver.TemplateResolverFactory;
 import org.jboss.weld.extensions.el.Expressions;
 import org.junit.Test;
 
@@ -41,6 +44,9 @@ import org.junit.Test;
 public class ApplyValuesPhaseTest extends MVCTest
 {
    @Inject
+   private ViewCompiler compiler;
+
+   @Inject
    private ApplyValuesPhase apply;
 
    @Inject
@@ -49,18 +55,25 @@ public class ApplyValuesPhaseTest extends MVCTest
    @Inject
    private Expressions expressions;
 
+   @Inject
+   protected void init(final TemplateResolverFactory factory)
+   {
+      compiler.getTemplateResolverFactory().addResolver(
+               new ClassLoaderTemplateResolver(this.getClass().getClassLoader()));
+   }
+
    @Test
    public void testApplyValues() throws Exception
    {
       String name = "name";
       String value = "lb3";
 
+      CompiledView view = compiler.compile("org/jboss/seam/mvc/views/hello.xhtml");
+
       Map<String, String[]> context = new HashMap<String, String[]>();
       context.put("name", new String[] { value });
 
-      InputStream stream = Thread.currentThread().getContextClassLoader()
-               .getResourceAsStream("org/jboss/seam/mvc/views/hello.xhtml");
-      apply.perform(stream, context);
+      apply.perform(view, context);
 
       assertEquals("exampleBean.name", bindings.get(name));
       assertEquals(value, expressions.evaluateValueExpression(expressions.toExpression(bindings.get(name))));

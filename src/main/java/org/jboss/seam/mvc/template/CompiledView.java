@@ -24,7 +24,6 @@ package org.jboss.seam.mvc.template;
 import java.util.Map;
 
 import org.jboss.seam.mvc.spi.resolver.TemplateResource;
-import org.jboss.seam.mvc.template.resolver.TemplateResolverFactory;
 import org.mvel2.integration.VariableResolverFactory;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateCompiler;
@@ -38,26 +37,43 @@ import org.mvel2.templates.res.Node;
  */
 public class CompiledView
 {
+   public static final String CONTEXT_KEY = CompiledView.class.getName() + "_COMPOSITION_CONTEXT";
+
    private final CompiledTemplate template;
    private final VariableResolverFactory factory;
-   private final TemplateResolverFactory resolverFactory;
    private final TemplateRegistry registry;
 
-   public CompiledView(final ELVariableResolverFactory factory, final TemplateRegistry registry,
-            final TemplateResolverFactory resolverFactory, final TemplateResource<?> resource,
+   private final TemplateResource<?> resource;
+
+   public CompiledView(final ELVariableResolverFactory factory,
+            final TemplateRegistry registry,
+            final TemplateResource<?> resource,
             final Map<String, Class<? extends Node>> nodes)
    {
       this.factory = factory;
       this.registry = registry;
-      this.resolverFactory = resolverFactory;
-
+      this.resource = resource;
       template = TemplateCompiler.compileTemplate(resource.getInputStream(), nodes);
    }
 
-   public String render(final Map context)
+   public String render(final Map<Object, Object> context)
    {
+      CompositionContext compositionContext = new CompositionContext();
+      compositionContext.setTemplateResource(resource);
+      context.put(CONTEXT_KEY, compositionContext);
       String result = (String) TemplateRuntime.execute(template, context, factory, registry);
 
       return result;
    }
+
+   public String render(final CompositionContext compositionContext, final Map<Object, Object> context)
+   {
+      CompositionContext composition = new CompositionContext(compositionContext);
+      compositionContext.setTemplateResource(resource);
+      context.put(CONTEXT_KEY, composition);
+      String result = (String) TemplateRuntime.execute(template, context, factory, registry);
+
+      return result;
+   }
+
 }
