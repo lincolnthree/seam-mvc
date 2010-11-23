@@ -8,7 +8,7 @@
 	
 	<label for="firstName">First Name:</label><br/>
 	<form action="@@view{}">
-		<input id="name" type="text" value="@bind{name : exampleBean.name}" />
+		<input id="name" type="text" value="@bind{ name : exampleBean.name }" />
 		<button name="submit" type="submit" value="@@action{submit, exampleBean.submit}"></button>
 	</form>
 </body>

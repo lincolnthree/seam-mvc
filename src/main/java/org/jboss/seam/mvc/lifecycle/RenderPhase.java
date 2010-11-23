@@ -23,7 +23,7 @@ package org.jboss.seam.mvc.lifecycle;
 
 import java.util.Map;
 
-import org.jboss.seam.mvc.template.CompiledView;
+import org.jboss.seam.render.template.CompiledView;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>

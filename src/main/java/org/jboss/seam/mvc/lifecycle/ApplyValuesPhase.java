@@ -30,8 +30,8 @@ import javax.el.ValueExpression;
 import javax.inject.Inject;
 
 import org.jboss.seam.mvc.template.BindingContext;
-import org.jboss.seam.mvc.template.CompiledView;
-import org.jboss.seam.mvc.template.ViewCompiler;
+import org.jboss.seam.render.TemplateCompiler;
+import org.jboss.seam.render.template.CompiledView;
 import org.jboss.weld.extensions.el.Expressions;
 
 /**
@@ -40,7 +40,7 @@ import org.jboss.weld.extensions.el.Expressions;
 public class ApplyValuesPhase implements Phase
 {
    @Inject
-   private ViewCompiler compiler;
+   private TemplateCompiler compiler;
 
    @Inject
    private BindingContext bindings;

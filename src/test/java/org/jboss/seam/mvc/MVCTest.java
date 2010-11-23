@@ -21,12 +21,13 @@
  */
 package org.jboss.seam.mvc;
 
+import org.jboss.arquillian.MavenArtifactResolver;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.ByteArrayAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.runner.RunWith;
 
 /**
@@ -37,12 +38,15 @@ import org.junit.runner.RunWith;
 public abstract class MVCTest
 {
    @Deployment
-   public static JavaArchive createTestArchive()
+   public static WebArchive createTestArchive()
    {
-      JavaArchive deployment = ShrinkWrap.create(JavaArchive.class, "test.jar")
+      WebArchive deployment = ShrinkWrap.create(WebArchive.class, "test.jar")
                .addPackages(true, Root.class.getPackage())
                .addManifestResource(new ByteArrayAsset("<beans/>".getBytes()), ArchivePaths.create("beans.xml"))
-               .addManifestResource("META-INF/services/org.jboss.weld.extensions.beanManager.BeanManagerProvider");
+               .addManifestResource("META-INF/services/org.jboss.weld.extensions.beanManager.BeanManagerProvider")
+               .addLibrary(MavenArtifactResolver.resolve(
+                        "org.jboss.seam.render:seam-render:1.0.0-SNAPSHOT"
+                        ));
       return deployment;
    }
 }

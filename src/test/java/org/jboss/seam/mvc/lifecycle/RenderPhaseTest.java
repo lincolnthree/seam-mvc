@@ -29,11 +29,12 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.jboss.seam.mvc.MVCTest;
+import org.jboss.seam.mvc.lifecycle.RenderPhase;
 import org.jboss.seam.mvc.template.BindingContext;
-import org.jboss.seam.mvc.template.CompiledView;
-import org.jboss.seam.mvc.template.ViewCompiler;
-import org.jboss.seam.mvc.template.resolver.ClassLoaderTemplateResolver;
-import org.jboss.seam.mvc.template.resolver.TemplateResolverFactory;
+import org.jboss.seam.render.TemplateCompiler;
+import org.jboss.seam.render.template.CompiledView;
+import org.jboss.seam.render.template.resolver.ClassLoaderTemplateResolver;
+import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
 import org.junit.Test;
 
 /**
@@ -49,7 +50,7 @@ public class RenderPhaseTest extends MVCTest
    private BindingContext bindings;
 
    @Inject
-   private ViewCompiler compiler;
+   private TemplateCompiler compiler;
 
    @Inject
    protected void init(final TemplateResolverFactory factory)

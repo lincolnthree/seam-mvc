@@ -36,10 +36,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.seam.mvc.lifecycle.ApplyValuesPhase;
 import org.jboss.seam.mvc.lifecycle.RenderPhase;
-import org.jboss.seam.mvc.template.CompiledView;
-import org.jboss.seam.mvc.template.ViewCompiler;
-import org.jboss.seam.mvc.template.resolver.ServletContextTemplateResolver;
-import org.jboss.seam.mvc.template.resolver.TemplateResolverFactory;
+import org.jboss.seam.mvc.template.BindingNode;
+import org.jboss.seam.mvc.template.ServletContextTemplateResolver;
+import org.jboss.seam.render.TemplateCompiler;
+import org.jboss.seam.render.template.CompiledView;
+import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
+import org.mvel2.templates.res.Node;
 
 import com.ocpsoft.pretty.PrettyContext;
 
@@ -53,7 +55,7 @@ public class ViewServlet extends HttpServlet
    private static final long serialVersionUID = 8641290779641399526L;
 
    @Inject
-   private ViewCompiler compiler;
+   private TemplateCompiler compiler;
    @Inject
    private ApplyValuesPhase applyValuesPhase;
    @Inject
@@ -132,7 +134,15 @@ public class ViewServlet extends HttpServlet
          }
       }
 
-      CompiledView view = compiler.compile(requestURI);
+      CompiledView view = compiler.compile(requestURI, getNodes());
       return view;
+   }
+
+   private Map<String, Class<? extends Node>> getNodes()
+   {
+      Map<String, Class<? extends Node>> nodes = new HashMap<String, Class<? extends Node>>();
+
+      nodes.put("bind", BindingNode.class);
+      return nodes;
    }
 }

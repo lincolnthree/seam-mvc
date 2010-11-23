@@ -23,6 +23,8 @@ package org.jboss.seam.mvc.template;
 
 import javax.enterprise.context.RequestScoped;
 
+import org.jboss.seam.render.template.TemplateContext;
+
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 

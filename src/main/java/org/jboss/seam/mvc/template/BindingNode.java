@@ -19,73 +19,57 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.template.nodes;
+package org.jboss.seam.mvc.template;
 
-import java.util.Map;
 import java.util.Queue;
 
-import org.jboss.seam.mvc.template.CompositionContext;
-import org.jboss.seam.mvc.template.Definition;
-import org.jboss.seam.mvc.util.Tokenizer;
+import javax.inject.Inject;
+
+import org.jboss.seam.render.template.nodes.ContextualNode;
+import org.jboss.seam.render.util.Tokenizer;
+import org.jboss.weld.extensions.el.Expressions;
 import org.mvel2.CompileException;
 import org.mvel2.integration.VariableResolverFactory;
 import org.mvel2.templates.TemplateRuntime;
-import org.mvel2.templates.res.EndNode;
 import org.mvel2.templates.res.Node;
-import org.mvel2.templates.res.TerminalNode;
 import org.mvel2.templates.util.TemplateOutputStream;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class InsertNode extends ContextualNode
+public class BindingNode extends ContextualNode
 {
-   private static final long serialVersionUID = -1285613595891138294L;
+   private static final long serialVersionUID = -8274035715437363235L;
+   private static final String DELIM = ":";
 
-   private static final String DELIM = ",";
+   @Inject
+   private Expressions expressions;
 
-   public InsertNode()
-   {
-      super();
-      terminus = new TerminalNode();
-   }
+   @Inject
+   private BindingContext bindings;
 
-   private Node defaultContent;
-
-   @SuppressWarnings("unchecked")
    @Override
    public Object eval(final TemplateRuntime runtime, final TemplateOutputStream appender, final Object ctx,
             final VariableResolverFactory factory)
    {
-      Node n = defaultContent = next;
-
-      while (n.getNext() != null)
-      {
-         n = n.next;
-      }
-
-      n.next = new EndNode();
-      next = terminus;
-
       String line = new String(contents);
       Queue<String> tokens = Tokenizer.tokenize(DELIM, line);
 
-      if (tokens.isEmpty())
+      if (tokens.size() != 2)
       {
-         throw new CompileException("@define{ ... } expects 1 argument, got @define{" + line + "}");
+         throw new CompileException("@" + getName()
+                  + "{ param " + DELIM + " bean.field } requires two parameters, instead received @bind{"
+                  + line + "}");
       }
 
-      CompositionContext defs = CompositionContext.extractFromMap((Map<Object, Object>) ctx);
-      Definition definition = defs.get(line.trim());
-
-      if (definition == null)
+      String name = tokens.remove().trim();
+      String el = tokens.remove().trim();
+      Object result = expressions.evaluateValueExpression(expressions.toExpression(el));
+      if (result != null)
       {
-         defaultContent.eval(runtime, appender, ctx, factory);
-      }
-      else
-      {
-         definition.eval(appender);
+         bindings.put(name, el);
+         appender.append(result.toString());
       }
 
       return next != null ? next.eval(runtime, appender, ctx, factory) : null;
@@ -95,12 +79,6 @@ public class InsertNode extends ContextualNode
    public boolean demarcate(final Node terminatingNode, final char[] template)
    {
       return false;
-   }
-
-   @Override
-   public boolean isOpenNode()
-   {
-      return true;
    }
 
 }

@@ -19,28 +19,55 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.cdi;
+package org.jboss.seam.mvc.template;
 
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.AfterBeanDiscovery;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.Extension;
+import java.io.InputStream;
+
+import javax.servlet.ServletContext;
+
+import org.jboss.seam.render.spi.TemplateResolver;
+import org.jboss.seam.render.spi.TemplateResource;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class BeanManagerCaptureExtension implements Extension
+public class ServletContextTemplateResource implements TemplateResource<ServletContext>
 {
-   private static BeanManager manager;
+   private final TemplateResolver<ServletContext> resolver;
+   private final String path;
+   private final ServletContext context;
 
-   public void grab(@Observes final AfterBeanDiscovery event, final BeanManager m)
+   public ServletContextTemplateResource(final TemplateResolver<ServletContext> resolver, final ServletContext context,
+            final String target)
    {
-      manager = m;
+      this.resolver = resolver;
+      this.path = target;
+      this.context = context;
    }
 
-   public static BeanManager getManager()
+   @Override
+   public String getPath()
    {
-      return manager;
+      return path;
    }
+
+   @Override
+   public InputStream getInputStream()
+   {
+      return context.getResourceAsStream(path);
+   }
+
+   @Override
+   public ServletContext getUnderlyingResource()
+   {
+      return context;
+   }
+
+   @Override
+   public TemplateResolver<ServletContext> getResolvedBy()
+   {
+      return resolver;
+   }
+
 }

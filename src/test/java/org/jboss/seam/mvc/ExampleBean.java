@@ -19,13 +19,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.template;
+package org.jboss.seam.mvc;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Named;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
- *
+ * 
  */
-public class Composition
+@Named
+@RequestScoped
+public class ExampleBean
 {
+   private String name = "Lincoln";
 
+   public String getName()
+   {
+      return name;
+   }
+
+   public void setName(final String firstName)
+   {
+      this.name = firstName;
+   }
+
+   public String submit()
+   {
+      return null;
+   }
 }

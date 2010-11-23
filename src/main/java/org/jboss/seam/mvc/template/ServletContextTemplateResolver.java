@@ -19,59 +19,64 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.template.resolver;
+package org.jboss.seam.mvc.template;
 
-import java.io.File;
+import java.util.Set;
 
-import org.jboss.seam.mvc.spi.resolver.TemplateResolver;
-import org.jboss.seam.mvc.spi.resolver.TemplateResource;
-import org.jboss.seam.mvc.util.Assert;
-import org.jboss.seam.mvc.util.Paths;
+import javax.servlet.ServletContext;
+
+import org.jboss.seam.render.spi.TemplateResolver;
+import org.jboss.seam.render.spi.TemplateResource;
+import org.jboss.seam.render.util.Assert;
+import org.jboss.seam.render.util.Paths;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class FileTemplateResolver implements TemplateResolver<File>
+public class ServletContextTemplateResolver implements TemplateResolver<ServletContext>
 {
-   @Override
-   public Class<File> getType()
+   private final ServletContext context;
+
+   public ServletContextTemplateResolver(final ServletContext context)
    {
-      return File.class;
+      this.context = context;
    }
 
    @Override
-   public TemplateResource<File> resolve(final String path)
+   public TemplateResource<ServletContext> resolve(final String path)
    {
       Assert.notNull(path, "Resource path must not be null.");
-      File file = new File(path);
-      if (validResource(file))
+      if (validResource(path))
       {
-         return new FileTemplateResource(file, this);
+         return new ServletContextTemplateResource(this, context, path);
       }
       return null;
    }
 
    @Override
-   public TemplateResource<File> resolveRelative(final TemplateResource<File> origin, String relativePath)
+   public TemplateResource<ServletContext> resolveRelative(final TemplateResource<ServletContext> origin,
+            final String relativePath)
    {
       Assert.notNull(origin, "Origin resource must not be null.");
       Assert.notNull(relativePath, "Relative resource path must not be null.");
-      relativePath = relativePath.trim();
       String path = origin.getPath();
-
       path = Paths.calculateRelativePath(path, relativePath);
 
-      File file = new File(path);
-      if (validResource(file))
+      if (validResource(path))
       {
-         return new FileTemplateResource(file, this);
+         return new ServletContextTemplateResource(this, context, path);
       }
       return null;
    }
 
-   private boolean validResource(final File file)
+   private boolean validResource(final String target)
    {
-      return file.exists() && file.isFile();
+      Set<String> paths = context.getResourcePaths(target);
+      if (paths.contains(target))
+      {
+         return true;
+      }
+      return false;
    }
 }
