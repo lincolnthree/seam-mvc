@@ -22,6 +22,7 @@
 package org.jboss.seam.mvc.test.lifecycle;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,13 +66,15 @@ public class RenderPhaseTest extends MVCTest
    public void testRenderTemplate() throws Exception
    {
       Map<Object, Object> context = new HashMap<Object, Object>();
-      context.put("world", new String[] { "lincoln" });
+      context.put("name", "lincoln");
 
       CompiledView view = compiler.compile("org/jboss/seam/mvc/views/hello.xhtml");
       String output = render.perform(view, context);
 
       System.out.println(output);
       assertEquals("exampleBean.name", bindings.get("name"));
+      assertTrue(output.contains("Hi lincoln,"));
+      assertTrue(output.contains("value=\"Lincoln"));
    }
 
 }
