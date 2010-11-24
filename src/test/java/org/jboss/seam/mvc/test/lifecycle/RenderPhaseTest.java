@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.lifecycle;
+package org.jboss.seam.mvc.test.lifecycle;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,9 +28,10 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.jboss.seam.mvc.MVCTest;
+import org.jboss.seam.mvc.MVC;
 import org.jboss.seam.mvc.lifecycle.RenderPhase;
 import org.jboss.seam.mvc.template.BindingContext;
+import org.jboss.seam.mvc.test.MVCTest;
 import org.jboss.seam.render.TemplateCompiler;
 import org.jboss.seam.render.template.CompiledView;
 import org.jboss.seam.render.template.resolver.ClassLoaderTemplateResolver;
@@ -50,6 +51,7 @@ public class RenderPhaseTest extends MVCTest
    private BindingContext bindings;
 
    @Inject
+   @MVC
    private TemplateCompiler compiler;
 
    @Inject

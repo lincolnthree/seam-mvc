@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jboss.seam.mvc.MVC;
 import org.jboss.seam.mvc.lifecycle.ApplyValuesPhase;
 import org.jboss.seam.mvc.lifecycle.RenderPhase;
 import org.jboss.seam.mvc.template.BindingNode;
@@ -55,9 +56,12 @@ public class ViewServlet extends HttpServlet
    private static final long serialVersionUID = 8641290779641399526L;
 
    @Inject
+   @MVC
    private TemplateCompiler compiler;
+
    @Inject
    private ApplyValuesPhase applyValuesPhase;
+
    @Inject
    private RenderPhase renderPhase;
 

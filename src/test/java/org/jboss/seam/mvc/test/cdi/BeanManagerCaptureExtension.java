@@ -19,34 +19,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc;
+package org.jboss.seam.mvc.test.cdi;
 
-import org.jboss.arquillian.MavenArtifactResolver;
-import org.jboss.arquillian.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ArchivePaths;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.ByteArrayAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.runner.RunWith;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.Extension;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-@RunWith(Arquillian.class)
-public abstract class MVCTest
+public class BeanManagerCaptureExtension implements Extension
 {
-   @Deployment
-   public static WebArchive createTestArchive()
+   private static BeanManager manager;
+
+   public void grab(@Observes final AfterBeanDiscovery event, final BeanManager m)
    {
-      WebArchive deployment = ShrinkWrap.create(WebArchive.class, "test.jar")
-               .addPackages(true, Root.class.getPackage())
-               .addManifestResource(new ByteArrayAsset("<beans/>".getBytes()), ArchivePaths.create("beans.xml"))
-               .addManifestResource("META-INF/services/org.jboss.weld.extensions.beanManager.BeanManagerProvider")
-               .addLibrary(MavenArtifactResolver.resolve(
-                        "org.jboss.seam.render:seam-render:1.0.0-SNAPSHOT"
-                        ));
-      return deployment;
+      manager = m;
+   }
+
+   public static BeanManager getManager()
+   {
+      return manager;
    }
 }

@@ -29,6 +29,7 @@ import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.inject.Inject;
 
+import org.jboss.seam.mvc.MVC;
 import org.jboss.seam.mvc.template.BindingContext;
 import org.jboss.seam.render.TemplateCompiler;
 import org.jboss.seam.render.template.CompiledView;
@@ -40,6 +41,7 @@ import org.jboss.weld.extensions.el.Expressions;
 public class ApplyValuesPhase implements Phase
 {
    @Inject
+   @MVC
    private TemplateCompiler compiler;
 
    @Inject
