@@ -19,63 +19,66 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.test.lifecycle;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+package org.jboss.seam.mvc.lifecycle;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
 import org.jboss.seam.mvc.MVC;
-import org.jboss.seam.mvc.lifecycle.RenderPhase;
-import org.jboss.seam.mvc.template.BindingContext;
-import org.jboss.seam.mvc.test.MVCTest;
+import org.jboss.seam.mvc.spi.NavigationProvider;
+import org.jboss.seam.mvc.template.ActionContext;
 import org.jboss.seam.render.TemplateCompiler;
 import org.jboss.seam.render.template.CompiledView;
-import org.jboss.seam.render.template.resolver.ClassLoaderTemplateResolver;
-import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
-import org.junit.Test;
+import org.jboss.weld.extensions.el.Expressions;
+import org.jboss.weld.extensions.util.service.ServiceLoader;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
- * 
  */
-public class RenderPhaseTest extends MVCTest
+public class ExecuteActionsPhase implements Phase
 {
-   @Inject
-   private RenderPhase render;
-
-   @Inject
-   private BindingContext bindings;
-
    @Inject
    @MVC
    private TemplateCompiler compiler;
 
    @Inject
-   protected void init(final TemplateResolverFactory factory)
+   private ActionContext actions;
+
+   @Inject
+   private Expressions expressions;
+
+   public void perform(final CompiledView view, final Map<String, String[]> parameterMap)
    {
-      compiler.getTemplateResolverFactory().addResolver(
-               new ClassLoaderTemplateResolver(this.getClass().getClassLoader()));
+      Map<Object, Object> map = new HashMap<Object, Object>();
+      map.putAll(parameterMap);
+
+      view.render(map);
+      for (Entry<String, String> entry : actions.entrySet())
+      {
+         String param = entry.getKey();
+         String method = entry.getValue();
+
+         // TODO validation and conversion
+
+         if (method != null)
+         {
+            method = expressions.toExpression(method);
+            Object result = expressions.evaluateMethodExpression(method);
+            if (result != null)
+            {
+               ServiceLoader<NavigationProvider> loader = ServiceLoader.load(NavigationProvider.class);
+               for (NavigationProvider provider : loader)
+               {
+                  if (provider.navigate(result))
+                  {
+                     break;
+                  }
+               }
+            }
+         }
+      }
    }
-
-   @Test
-   public void testRenderTemplate() throws Exception
-   {
-      Map<Object, Object> context = new HashMap<Object, Object>();
-      context.put("name", "lincoln");
-
-      CompiledView view = compiler.compile("org/jboss/seam/mvc/views/hello.xhtml");
-      String output = render.perform(view, context);
-
-      System.out.println(output);
-      assertEquals("exampleBean.name", bindings.get("name"));
-      assertTrue(output.contains("Hi lincoln,"));
-      assertTrue(output.contains("value=\"Lincoln\""));
-      assertTrue(output.contains("name=\"name\""));
-   }
-
 }

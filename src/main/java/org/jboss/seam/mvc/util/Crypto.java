@@ -19,27 +19,19 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.template;
-
-import javax.inject.Inject;
-
-import org.jboss.seam.mvc.MVC;
-import org.jboss.seam.render.TemplateCompiler;
-import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
-import org.mvel2.integration.VariableResolverFactory;
+package org.jboss.seam.mvc.util;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-@MVC
-public class ViewCompiler extends TemplateCompiler
+public abstract class Crypto
 {
-   @Inject
-   public ViewCompiler(final VariableResolverFactory variableFactory, final TemplateResolverFactory resolverFactory)
+
+   public static String hash(final String value)
    {
-      super(variableFactory, resolverFactory);
-      addNode("bind", BindingNode.class);
-      addNode("action", ActionNode.class);
+      // TODO implement crypto hashing
+      return value;
    }
+
 }

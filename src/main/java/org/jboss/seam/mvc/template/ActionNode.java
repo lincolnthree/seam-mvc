@@ -25,6 +25,7 @@ import java.util.Queue;
 
 import javax.inject.Inject;
 
+import org.jboss.seam.mvc.util.Crypto;
 import org.jboss.seam.render.template.nodes.ContextualNode;
 import org.jboss.seam.render.util.Tokenizer;
 import org.jboss.weld.extensions.el.Expressions;
@@ -38,7 +39,7 @@ import org.mvel2.templates.util.TemplateOutputStream;
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public class BindingNode extends ContextualNode
+public class ActionNode extends ContextualNode
 {
    private static final long serialVersionUID = -8274035715437363235L;
    private static final String DELIM = ":";
@@ -47,7 +48,7 @@ public class BindingNode extends ContextualNode
    private Expressions expressions;
 
    @Inject
-   private BindingContext bindings;
+   private ActionContext actions;
 
    @Override
    public Object eval(final TemplateRuntime runtime, final TemplateOutputStream appender, final Object ctx,
@@ -59,18 +60,14 @@ public class BindingNode extends ContextualNode
       if (tokens.size() != 2)
       {
          throw new CompileException("@" + getName()
-                  + "{ param " + DELIM + " bean.field } requires two parameters, instead received @bind{"
+                  + "{ param " + DELIM + " bean.field } requires two parameters, instead received @" + getName() + "{"
                   + line + "}");
       }
 
       String name = tokens.remove().trim();
       String el = tokens.remove().trim();
-      Object result = expressions.evaluateValueExpression(expressions.toExpression(el));
-      if (result != null)
-      {
-         bindings.put(name, el);
-         appender.append("name=\"" + name + "\" value=\"" + result.toString() + "\"");
-      }
+      actions.put(name, el);
+      appender.append("name=\"" + name + "\" value=\"" + Crypto.hash(el) + "\"");
 
       return next != null ? next.eval(runtime, appender, ctx, factory) : null;
    }

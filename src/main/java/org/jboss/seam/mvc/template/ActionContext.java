@@ -21,25 +21,15 @@
  */
 package org.jboss.seam.mvc.template;
 
-import javax.inject.Inject;
+import javax.enterprise.context.RequestScoped;
 
-import org.jboss.seam.mvc.MVC;
-import org.jboss.seam.render.TemplateCompiler;
-import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
-import org.mvel2.integration.VariableResolverFactory;
+import org.jboss.seam.render.template.TemplateContext;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-@MVC
-public class ViewCompiler extends TemplateCompiler
+@RequestScoped
+public class ActionContext extends TemplateContext<String, String>
 {
-   @Inject
-   public ViewCompiler(final VariableResolverFactory variableFactory, final TemplateResolverFactory resolverFactory)
-   {
-      super(variableFactory, resolverFactory);
-      addNode("bind", BindingNode.class);
-      addNode("action", ActionNode.class);
-   }
 }

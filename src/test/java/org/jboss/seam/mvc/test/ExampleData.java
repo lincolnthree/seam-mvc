@@ -19,27 +19,53 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.template;
-
-import javax.inject.Inject;
-
-import org.jboss.seam.mvc.MVC;
-import org.jboss.seam.render.TemplateCompiler;
-import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
-import org.mvel2.integration.VariableResolverFactory;
+package org.jboss.seam.mvc.test;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-@MVC
-public class ViewCompiler extends TemplateCompiler
+public class ExampleData
 {
-   @Inject
-   public ViewCompiler(final VariableResolverFactory variableFactory, final TemplateResolverFactory resolverFactory)
+   public ExampleData(final int id, final String name, final String value)
    {
-      super(variableFactory, resolverFactory);
-      addNode("bind", BindingNode.class);
-      addNode("action", ActionNode.class);
+      super();
+      this.id = id;
+      this.name = name;
+      this.value = value;
+   }
+
+   private int id;
+   private String name;
+   private String value;
+
+   public int getId()
+   {
+      return id;
+   }
+
+   public void setId(final int id)
+   {
+      this.id = id;
+   }
+
+   public String getName()
+   {
+      return name;
+   }
+
+   public void setName(final String name)
+   {
+      this.name = name;
+   }
+
+   public String getValue()
+   {
+      return value;
+   }
+
+   public void setValue(final String value)
+   {
+      this.value = value;
    }
 }

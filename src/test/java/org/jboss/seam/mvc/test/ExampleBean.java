@@ -21,6 +21,9 @@
  */
 package org.jboss.seam.mvc.test;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
 
@@ -33,6 +36,17 @@ import javax.inject.Named;
 public class ExampleBean
 {
    private String name = "Lincoln";
+   private final Set<ExampleData> collection;
+
+   public ExampleBean()
+   {
+      collection = new HashSet<ExampleData>();
+      collection.add(new ExampleData(1, "Eddie", "Boy"));
+      collection.add(new ExampleData(2, "Emily", "Girl"));
+      collection.add(new ExampleData(3, "Don", "Boy"));
+      collection.add(new ExampleData(4, "Susan", "Girl"));
+      collection.add(new ExampleData(5, "Lincolns", "Boy"));
+   }
 
    public String getName()
    {
@@ -47,5 +61,10 @@ public class ExampleBean
    public String submit()
    {
       return null;
+   }
+
+   public Set<ExampleData> getCollection()
+   {
+      return collection;
    }
 }
