@@ -31,7 +31,7 @@ import org.jboss.seam.mvc.MVC;
 import org.jboss.seam.mvc.spi.NavigationProvider;
 import org.jboss.seam.mvc.template.ActionContext;
 import org.jboss.seam.render.TemplateCompiler;
-import org.jboss.seam.render.template.CompiledView;
+import org.jboss.seam.render.template.CompiledTemplateResource;
 import org.jboss.weld.extensions.el.Expressions;
 import org.jboss.weld.extensions.util.service.ServiceLoader;
 
@@ -50,7 +50,7 @@ public class ExecuteActionsPhase implements Phase
    @Inject
    private Expressions expressions;
 
-   public void perform(final CompiledView view, final Map<String, String[]> parameterMap)
+   public void perform(final CompiledTemplateResource view, final Map<String, String[]> parameterMap)
    {
       Map<Object, Object> map = new HashMap<Object, Object>();
       map.putAll(parameterMap);

@@ -72,7 +72,7 @@ public class ServletContextTemplateResolver implements TemplateResolver<ServletC
 
    private boolean validResource(final String target)
    {
-      Set<String> paths = context.getResourcePaths(target);
+      Set<String> paths = context.getResourcePaths("/");
       if (paths.contains(target))
       {
          return true;

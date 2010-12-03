@@ -21,7 +21,9 @@
  */
 package org.jboss.seam.mvc.template;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLConnection;
 
 import javax.servlet.ServletContext;
 
@@ -68,6 +70,21 @@ public class ServletContextTemplateResource implements TemplateResource<ServletC
    public TemplateResolver<ServletContext> getResolvedBy()
    {
       return resolver;
+   }
+
+   @Override
+   public long getLastModified()
+   {
+      URLConnection connection = null;
+      try
+      {
+         connection = context.getResource(path).openConnection();
+         return connection.getLastModified();
+      }
+      catch (IOException e)
+      {
+         throw new RuntimeException("Could not determine last modified time for resource [" + path + "]", e);
+      }
    }
 
 }

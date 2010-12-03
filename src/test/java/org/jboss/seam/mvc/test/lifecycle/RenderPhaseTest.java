@@ -34,7 +34,7 @@ import org.jboss.seam.mvc.lifecycle.RenderPhase;
 import org.jboss.seam.mvc.template.BindingContext;
 import org.jboss.seam.mvc.test.MVCTest;
 import org.jboss.seam.render.TemplateCompiler;
-import org.jboss.seam.render.template.CompiledView;
+import org.jboss.seam.render.template.CompiledTemplateResource;
 import org.jboss.seam.render.template.resolver.ClassLoaderTemplateResolver;
 import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
 import org.junit.Test;
@@ -68,7 +68,7 @@ public class RenderPhaseTest extends MVCTest
       Map<Object, Object> context = new HashMap<Object, Object>();
       context.put("name", "lincoln");
 
-      CompiledView view = compiler.compile("org/jboss/seam/mvc/views/hello.xhtml");
+      CompiledTemplateResource view = compiler.compile("org/jboss/seam/mvc/views/hello.xhtml");
       String output = render.perform(view, context);
 
       System.out.println(output);

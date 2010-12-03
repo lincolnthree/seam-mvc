@@ -23,14 +23,14 @@ package org.jboss.seam.mvc.lifecycle;
 
 import java.util.Map;
 
-import org.jboss.seam.render.template.CompiledView;
+import org.jboss.seam.render.template.CompiledTemplateResource;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  */
 public class RenderPhase implements Phase
 {
-   public String perform(final CompiledView view, final Map<Object, Object> parameterMap)
+   public String perform(final CompiledTemplateResource view, final Map<Object, Object> parameterMap)
    {
       return view.render(parameterMap);
    }

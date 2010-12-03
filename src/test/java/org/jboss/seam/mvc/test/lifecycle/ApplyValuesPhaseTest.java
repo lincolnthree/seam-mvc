@@ -33,7 +33,7 @@ import org.jboss.seam.mvc.lifecycle.ApplyValuesPhase;
 import org.jboss.seam.mvc.template.BindingContext;
 import org.jboss.seam.mvc.test.MVCTest;
 import org.jboss.seam.render.TemplateCompiler;
-import org.jboss.seam.render.template.CompiledView;
+import org.jboss.seam.render.template.CompiledTemplateResource;
 import org.jboss.seam.render.template.resolver.ClassLoaderTemplateResolver;
 import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
 import org.jboss.weld.extensions.el.Expressions;
@@ -71,7 +71,7 @@ public class ApplyValuesPhaseTest extends MVCTest
       String name = "name";
       String value = "lb3";
 
-      CompiledView view = compiler.compile("org/jboss/seam/mvc/views/hello.xhtml");
+      CompiledTemplateResource view = compiler.compile("org/jboss/seam/mvc/views/hello.xhtml");
 
       Map<String, String[]> context = new HashMap<String, String[]>();
       context.put("name", new String[] { value });

@@ -6,6 +6,7 @@
    <groupId>org.jboss.seam.mvc</groupId>
    <artifactId>seam-mvc</artifactId>
    <version>1.0.0-SNAPSHOT</version>
+   <packaging>jar</packaging>
 
    <properties>
       <arquillian.version>1.0.0.Alpha4</arquillian.version>

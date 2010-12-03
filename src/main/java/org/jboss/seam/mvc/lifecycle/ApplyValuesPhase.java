@@ -32,7 +32,7 @@ import javax.inject.Inject;
 import org.jboss.seam.mvc.MVC;
 import org.jboss.seam.mvc.template.BindingContext;
 import org.jboss.seam.render.TemplateCompiler;
-import org.jboss.seam.render.template.CompiledView;
+import org.jboss.seam.render.template.CompiledTemplateResource;
 import org.jboss.weld.extensions.el.Expressions;
 
 /**
@@ -50,7 +50,7 @@ public class ApplyValuesPhase implements Phase
    @Inject
    private Expressions expressions;
 
-   public void perform(final CompiledView view, final Map<String, String[]> parameterMap)
+   public void perform(final CompiledTemplateResource view, final Map<String, String[]> parameterMap)
    {
       Map<Object, Object> map = new HashMap<Object, Object>();
       map.putAll(parameterMap);
