@@ -19,19 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.mvc.util;
+package org.jboss.seam.mvc.el;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.jboss.weld.extensions.el.Expressions;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-public abstract class Crypto
+@Named("_el")
+@RequestScoped
+public class EL
 {
+   @Inject
+   private Expressions expressions;
 
-   public static String hash(final String value)
+   public Object get(final String name)
    {
-      // TODO implement real crypto hashing
-      return String.valueOf(value.hashCode());
+      return expressions.evaluateValueExpression(expressions.toExpression(name));
    }
-
 }

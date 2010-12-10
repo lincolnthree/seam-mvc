@@ -50,6 +50,9 @@ public class ApplyValuesPhase implements Phase
    @Inject
    private Expressions expressions;
 
+   /*
+    * Should only occur on POST, not GET.
+    */
    public void perform(final CompiledTemplateResource view, final Map<String, String[]> parameterMap)
    {
       Map<Object, Object> map = new HashMap<Object, Object>();

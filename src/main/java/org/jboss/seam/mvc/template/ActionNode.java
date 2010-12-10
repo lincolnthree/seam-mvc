@@ -21,16 +21,14 @@
  */
 package org.jboss.seam.mvc.template;
 
-import java.util.Queue;
-
 import javax.inject.Inject;
 
 import org.jboss.seam.mvc.util.Crypto;
 import org.jboss.seam.render.template.nodes.ContextualNode;
-import org.jboss.seam.render.util.Tokenizer;
-import org.jboss.weld.extensions.el.Expressions;
 import org.mvel2.CompileException;
 import org.mvel2.integration.VariableResolverFactory;
+import org.mvel2.templates.CompiledTemplate;
+import org.mvel2.templates.TemplateCompiler;
 import org.mvel2.templates.TemplateRuntime;
 import org.mvel2.templates.res.Node;
 import org.mvel2.templates.util.TemplateOutputStream;
@@ -45,30 +43,50 @@ public class ActionNode extends ContextualNode
    private static final String DELIM = ":";
 
    @Inject
-   private Expressions expressions;
-
-   @Inject
    private ActionContext actions;
+
+   private CompiledTemplate action;
+
+   @Override
+   public void setContents(final char[] contents)
+   {
+      super.setContents(contents);
+
+      String str = new String(contents).trim();
+
+      if (str.isEmpty())
+      {
+         throw new CompileException("@" + getName()
+                  + "{ param " + DELIM + " bean.field } requires two parameters, instead received @" + getName() + "{"
+                  + action + "}");
+      }
+
+      try
+      {
+         action = TemplateCompiler.compileTemplate(contents);
+      }
+      catch (Exception e)
+      {
+         throw new CompileException("Could not compile action [" + str + "]", e);
+      }
+
+   }
 
    @Override
    public Object eval(final TemplateRuntime runtime, final TemplateOutputStream appender, final Object ctx,
             final VariableResolverFactory factory)
    {
-      String line = new String(contents);
-      Queue<String> tokens = Tokenizer.tokenize(DELIM, line);
-
-      if (tokens.size() != 2)
+      try
       {
-         throw new CompileException("@" + getName()
-                  + "{ param " + DELIM + " bean.field } requires two parameters, instead received @" + getName() + "{"
-                  + line + "}");
+         String a = (String) TemplateRuntime.execute(action, ctx, factory);
+         String hash = "a_" + Crypto.hash(a);
+         actions.put(hash, a);
+         appender.append(hash);
       }
-
-      String name = tokens.remove().trim();
-      String el = tokens.remove().trim();
-      actions.put(name, el);
-      appender.append("name=\"" + name + "\" value=\"" + Crypto.hash(el) + "\"");
-
+      catch (Exception e)
+      {
+         throw new CompileException("Could not bind action [" + new String(contents) + "]", e);
+      }
       return next != null ? next.eval(runtime, appender, ctx, factory) : null;
    }
 

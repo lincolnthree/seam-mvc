@@ -36,15 +36,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.seam.mvc.lifecycle.ApplyValuesPhase;
+import org.jboss.seam.mvc.lifecycle.ExecuteActionsPhase;
 import org.jboss.seam.mvc.lifecycle.RenderPhase;
 import org.jboss.seam.mvc.request.Params;
-import org.jboss.seam.mvc.template.BindingNode;
 import org.jboss.seam.mvc.template.ServletContextTemplateResolver;
 import org.jboss.seam.render.TemplateCompiler;
 import org.jboss.seam.render.spi.TemplateResource;
 import org.jboss.seam.render.template.CompiledTemplateResource;
 import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
-import org.mvel2.templates.res.Node;
 
 import com.ocpsoft.pretty.PrettyContext;
 
@@ -63,6 +62,9 @@ public class ViewServlet extends HttpServlet
 
    @Inject
    private ApplyValuesPhase applyValuesPhase;
+
+   @Inject
+   private ExecuteActionsPhase executeActionsPhase;
 
    @Inject
    private RenderPhase renderPhase;
@@ -124,6 +126,8 @@ public class ViewServlet extends HttpServlet
          params.putAll(parameterMap);
 
          applyValuesPhase.perform(input, parameterMap);
+         executeActionsPhase.perform(input, parameterMap);
+
          Map<Object, Object> map = new HashMap<Object, Object>();
 
          String written = renderPhase.perform(input, map);
@@ -150,31 +154,22 @@ public class ViewServlet extends HttpServlet
             requestURI = "/" + requestURI.substring(m.length());
          }
       }
+      requestURI = requestURI += ".view";
 
       CompiledTemplateResource view = null;
-      synchronized (views)
+      TemplateResource<?> resource = factory.resolve(requestURI);
+      long lastModified = resource.getLastModified();
+      if (views.containsKey(requestURI) && !(lastModified > viewTimestamps.get(requestURI)) && (lastModified != 0))
       {
-         TemplateResource<?> resource = factory.resolve(requestURI);
-         long lastModified = resource.getLastModified();
-         if (views.containsKey(requestURI) && !(lastModified > viewTimestamps.get(requestURI)) && (lastModified != 0))
-         {
-            view = views.get(requestURI);
-         }
-         else
-         {
-            view = compiler.compile(requestURI, getNodes());
-            views.put(requestURI, view);
-            viewTimestamps.put(requestURI, resource.getLastModified());
-         }
+         view = views.get(requestURI);
+      }
+      else
+      {
+         view = compiler.compile(requestURI);
+         views.put(requestURI, view);
+         viewTimestamps.put(requestURI, resource.getLastModified());
       }
       return view;
    }
 
-   private Map<String, Class<? extends Node>> getNodes()
-   {
-      Map<String, Class<? extends Node>> nodes = new HashMap<String, Class<? extends Node>>();
-
-      nodes.put("bind", BindingNode.class);
-      return nodes;
-   }
 }

@@ -29,6 +29,7 @@ import org.jboss.seam.render.template.nodes.ContextualNode;
 import org.jboss.seam.render.util.Tokenizer;
 import org.jboss.weld.extensions.el.Expressions;
 import org.mvel2.CompileException;
+import org.mvel2.MVEL;
 import org.mvel2.integration.VariableResolverFactory;
 import org.mvel2.templates.TemplateRuntime;
 import org.mvel2.templates.res.Node;
@@ -50,10 +51,27 @@ public class BindingNode extends ContextualNode
    private BindingContext bindings;
 
    @Override
+   public void setContents(final char[] contents)
+   {
+      super.setContents(contents);
+      setup();
+   }
+
+   private void setup()
+   {
+
+   }
+
+   @Override
    public Object eval(final TemplateRuntime runtime, final TemplateOutputStream appender, final Object ctx,
             final VariableResolverFactory factory)
    {
+      /*
+       * TODO this needs to be a compile time step that stores bindings, possibly with a Tree-visitor (See:
+       * template.getRoot())
+       */
       String line = new String(contents);
+
       Queue<String> tokens = Tokenizer.tokenize(DELIM, line);
 
       if (tokens.size() != 2)
@@ -65,11 +83,14 @@ public class BindingNode extends ContextualNode
 
       String name = tokens.remove().trim();
       String el = tokens.remove().trim();
+      name = MVEL.eval(name, ctx, factory, String.class);
+      el = MVEL.eval(el, ctx, factory, String.class);
+
       Object result = expressions.evaluateValueExpression(expressions.toExpression(el));
+      bindings.put(name, el);
       if (result != null)
       {
-         bindings.put(name, el);
-         appender.append("name=\"" + name + "\" value=\"" + result.toString() + "\"");
+         // appender.append(result.toString());
       }
 
       return next != null ? next.eval(runtime, appender, ctx, factory) : null;

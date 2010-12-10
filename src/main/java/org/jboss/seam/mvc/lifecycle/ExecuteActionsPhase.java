@@ -58,12 +58,12 @@ public class ExecuteActionsPhase implements Phase
       view.render(map);
       for (Entry<String, String> entry : actions.entrySet())
       {
-         String param = entry.getKey();
+         String param = entry.getKey().trim();
          String method = entry.getValue();
 
          // TODO validation and conversion
 
-         if (method != null)
+         if (parameterMap.containsKey(param) && (method != null))
          {
             method = expressions.toExpression(method);
             Object result = expressions.evaluateMethodExpression(method);
