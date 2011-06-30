@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.jboss.seam.mvc.test</groupId>
+   <artifactId>seam-mvc-test</artifactId>
+   <version>1.0.0-SNAPSHOT</version>
+   <packaging>war</packaging>
+   <dependencies>
+      <dependency>
+         <groupId>org.jboss.seam.mvc</groupId>
+         <artifactId>seam-mvc</artifactId>
+         <version>1.0.0-SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jboss.spec</groupId>
+         <artifactId>jboss-javaee-6.0</artifactId>
+         <version>1.0.0.CR1</version>
+         <type>pom</type>
+         <scope>provided</scope>
+      </dependency>
+   </dependencies>
+   <repositories>
+      <repository>
+         <id>jboss</id>
+         <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+      </repository>
+   </repositories>
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+               <source>1.6</source>
+               <target>1.6</target>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+</project>

@@ -1,0 +1,2 @@
+@bind{ name : bind }
+<input type="text" name="@{name}" value="@{_el.get(bind) == empty ? "" : _el.get(bind)}" />

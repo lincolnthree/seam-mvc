@@ -1,0 +1,2 @@
+@bind{ name : bind }
+<input type="checkbox" name="@{name}" value="@{value}" @if{_el.get(bind) == value}checked="checked" @end{}/>
