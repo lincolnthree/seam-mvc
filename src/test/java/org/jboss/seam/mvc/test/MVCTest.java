@@ -21,13 +21,18 @@
  */
 package org.jboss.seam.mvc.test;
 
+import java.util.Collection;
+
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.seam.mvc.Root;
 import org.jboss.shrinkwrap.api.ArchivePaths;
+import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.ByteArrayAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
 import org.junit.runner.RunWith;
 
 /**
@@ -38,13 +43,22 @@ import org.junit.runner.RunWith;
 public abstract class MVCTest
 {
    @Deployment
-   public static JavaArchive createTestArchive()
+   public static WebArchive createTestArchive()
    {
-      JavaArchive deployment = ShrinkWrap.create(JavaArchive.class, "test.jar")
+      WebArchive deployment = ShrinkWrap.create(WebArchive.class, "test.jar")
+               .addAsLibraries(resolveDependencies("org.jboss.seam.solder:seam-solder:3.0.0.Final"))
                .addPackages(true, Root.class.getPackage())
                .addPackages(true, org.jboss.seam.render.Root.class.getPackage())
-               .addManifestResource(new ByteArrayAsset("<beans/>".getBytes()), ArchivePaths.create("beans.xml"))
-               .addManifestResource("META-INF/services/org.jboss.weld.extensions.beanManager.BeanManagerProvider");
+               .addAsManifestResource(new ByteArrayAsset("<beans/>".getBytes()), ArchivePaths.create("beans.xml"))
+               .addAsManifestResource("META-INF/services/org.jboss.seam.solder.beanManager.BeanManagerProvider");
+
       return deployment;
+   }
+
+   private static Collection<GenericArchive> resolveDependencies(String coords)
+   {
+      return DependencyResolvers.use(MavenDependencyResolver.class)
+               .artifacts(coords)
+               .resolveAs(GenericArchive.class);
    }
 }

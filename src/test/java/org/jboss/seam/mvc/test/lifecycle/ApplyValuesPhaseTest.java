@@ -36,7 +36,7 @@ import org.jboss.seam.render.TemplateCompiler;
 import org.jboss.seam.render.template.CompiledTemplateResource;
 import org.jboss.seam.render.template.resolver.ClassLoaderTemplateResolver;
 import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
-import org.jboss.weld.extensions.el.Expressions;
+import org.jboss.seam.solder.el.Expressions;
 import org.junit.Test;
 
 /**

@@ -11,9 +11,11 @@
 		<input type="text" @bind{ name : exampleBean.name } id="name" />
 		
 		<select @bind{name : exampleBean.name }>
-			@foreach{item : exampleBean.collection}
-			<option id="@{item.id}" value="@{item.name}" @if{item.id==name}selected="selected"@end{} />
-			@end{}
+		
+			<!-- @foreach{item : exampleBean.collection} -->
+			<option id="@{item.id}" value="@{item.name}" @if{item.name==exampleBean.name}selected="selected"@end{} />
+			<!-- @end{} -->
+		
 		</select>
 		
 		<button type="submit" @action{ paramName : exampleBean.submit} id="submit" />

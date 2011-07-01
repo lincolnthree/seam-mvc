@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jboss.logging.Logger;
 import org.jboss.seam.mvc.lifecycle.ApplyValuesPhase;
 import org.jboss.seam.mvc.lifecycle.ExecuteActionsPhase;
 import org.jboss.seam.mvc.lifecycle.RenderPhase;
@@ -45,16 +46,16 @@ import org.jboss.seam.render.spi.TemplateResource;
 import org.jboss.seam.render.template.CompiledTemplateResource;
 import org.jboss.seam.render.template.resolver.TemplateResolverFactory;
 
-import com.ocpsoft.pretty.PrettyContext;
-
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  * 
  */
-@WebServlet(name = "Seam MVC", urlPatterns = { "/mvc/*" }, loadOnStartup = 1, asyncSupported = true)
+@WebServlet(name = "Seam MVC", urlPatterns = { "*.mvc" }, loadOnStartup = 1, asyncSupported = true)
 public class ViewServlet extends HttpServlet
 {
    private static final long serialVersionUID = 8641290779641399526L;
+
+   private final Logger log = Logger.getLogger(ViewServlet.class);
 
    @Inject
    @MVC
@@ -86,7 +87,8 @@ public class ViewServlet extends HttpServlet
    @Override
    public void init(final ServletConfig config) throws ServletException
    {
-      System.out.println("Starting Seam MVC");
+      log.info("Seam MVC is active, listening for requests on: "
+               + config.getServletContext().getServletRegistrations().get(config.getServletName()).getMappings());
       this.config = config;
       factory.addResolver(new ServletContextTemplateResolver(config.getServletContext()));
    }
@@ -111,7 +113,7 @@ public class ViewServlet extends HttpServlet
       }
       else
       {
-         PrettyContext.getCurrentInstance().sendError(404);
+         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
       }
    }
 
@@ -135,14 +137,17 @@ public class ViewServlet extends HttpServlet
       }
       else
       {
-         PrettyContext.getCurrentInstance().sendError(404);
+         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
       }
    }
 
    private CompiledTemplateResource getTemplate(final HttpServletRequest req)
    {
       String requestURI = req.getRequestURI();
-      requestURI = PrettyContext.getCurrentInstance(req).stripContextPath(requestURI);
+      if (requestURI.startsWith(req.getContextPath()))
+      {
+         requestURI = requestURI.substring(req.getContextPath().length());
+      }
 
       Collection<String> mappings = config.getServletContext().getServletRegistration(config.getServletName())
                .getMappings();
@@ -154,7 +159,6 @@ public class ViewServlet extends HttpServlet
             requestURI = "/" + requestURI.substring(m.length());
          }
       }
-      requestURI = requestURI += ".view";
 
       CompiledTemplateResource view = null;
       TemplateResource<?> resource = factory.resolve(requestURI);
@@ -165,7 +169,7 @@ public class ViewServlet extends HttpServlet
       }
       else
       {
-         view = compiler.compile(requestURI);
+         view = compiler.compile(resource);
          views.put(requestURI, view);
          viewTimestamps.put(requestURI, resource.getLastModified());
       }

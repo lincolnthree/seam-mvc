@@ -33,7 +33,7 @@ import org.jboss.seam.mvc.MVC;
 import org.jboss.seam.mvc.template.BindingContext;
 import org.jboss.seam.render.TemplateCompiler;
 import org.jboss.seam.render.template.CompiledTemplateResource;
-import org.jboss.weld.extensions.el.Expressions;
+import org.jboss.seam.solder.el.Expressions;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>

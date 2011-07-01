@@ -38,7 +38,8 @@ public class ViewCompiler extends TemplateCompiler
    @Inject
    public ViewCompiler(final VariableResolverFactory variableFactory, final TemplateResolverFactory resolverFactory)
    {
-      super(variableFactory, resolverFactory);
+      super(variableFactory);
+      this.getTemplateResolverFactory().addResolver(resolverFactory);
       addNode("bind", BindingNode.class);
       addNode("action", ActionNode.class);
    }

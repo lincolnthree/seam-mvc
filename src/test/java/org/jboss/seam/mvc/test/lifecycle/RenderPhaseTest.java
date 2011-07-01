@@ -76,6 +76,7 @@ public class RenderPhaseTest extends MVCTest
       assertTrue(output.contains("Hi lincoln,"));
       assertTrue(output.contains("value=\"Lincoln\""));
       assertTrue(output.contains("name=\"name\""));
+      assertTrue(output.contains("selected=\"selected\""));
    }
 
 }

@@ -58,7 +58,7 @@ public class ActionNode extends ContextualNode
       {
          throw new CompileException("@" + getName()
                   + "{ param " + DELIM + " bean.field } requires two parameters, instead received @" + getName() + "{"
-                  + action + "}");
+                  + action + "}", new char[] {}, 0);
       }
 
       try
@@ -67,7 +67,7 @@ public class ActionNode extends ContextualNode
       }
       catch (Exception e)
       {
-         throw new CompileException("Could not compile action [" + str + "]", e);
+         throw new CompileException("Could not compile action [" + str + "]", new char[] {}, 0, e);
       }
 
    }
@@ -85,7 +85,7 @@ public class ActionNode extends ContextualNode
       }
       catch (Exception e)
       {
-         throw new CompileException("Could not bind action [" + new String(contents) + "]", e);
+         throw new CompileException("Could not bind action [" + new String(contents) + "]", new char[] {}, 0, e);
       }
       return next != null ? next.eval(runtime, appender, ctx, factory) : null;
    }

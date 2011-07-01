@@ -32,8 +32,8 @@ import org.jboss.seam.mvc.spi.NavigationProvider;
 import org.jboss.seam.mvc.template.ActionContext;
 import org.jboss.seam.render.TemplateCompiler;
 import org.jboss.seam.render.template.CompiledTemplateResource;
-import org.jboss.weld.extensions.el.Expressions;
-import org.jboss.weld.extensions.util.service.ServiceLoader;
+import org.jboss.seam.solder.el.Expressions;
+import org.jboss.seam.solder.util.service.ServiceLoader;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>

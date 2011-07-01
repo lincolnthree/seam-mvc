@@ -45,7 +45,7 @@ public class ExampleBean
       collection.add(new ExampleData(2, "Emily", "Girl"));
       collection.add(new ExampleData(3, "Don", "Boy"));
       collection.add(new ExampleData(4, "Susan", "Girl"));
-      collection.add(new ExampleData(5, "Lincolns", "Boy"));
+      collection.add(new ExampleData(5, "Lincoln", "Boy"));
    }
 
    public String getName()

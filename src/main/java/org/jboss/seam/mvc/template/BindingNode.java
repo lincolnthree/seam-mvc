@@ -23,11 +23,12 @@ package org.jboss.seam.mvc.template;
 
 import java.util.Queue;
 
+import javax.el.PropertyNotFoundException;
 import javax.inject.Inject;
 
 import org.jboss.seam.render.template.nodes.ContextualNode;
 import org.jboss.seam.render.util.Tokenizer;
-import org.jboss.weld.extensions.el.Expressions;
+import org.jboss.seam.solder.el.Expressions;
 import org.mvel2.CompileException;
 import org.mvel2.MVEL;
 import org.mvel2.integration.VariableResolverFactory;
@@ -78,20 +79,30 @@ public class BindingNode extends ContextualNode
       {
          throw new CompileException("@" + getName()
                   + "{ param " + DELIM + " bean.field } requires two parameters, instead received @bind{"
-                  + line + "}");
+                  + line + "}", new char[] {}, 0);
       }
 
       String name = tokens.remove().trim();
       String el = tokens.remove().trim();
-      name = MVEL.eval(name, ctx, factory, String.class);
-      el = MVEL.eval(el, ctx, factory, String.class);
 
-      Object result = expressions.evaluateValueExpression(expressions.toExpression(el));
-      bindings.put(name, el);
-      if (result != null)
+      Object result = "";
+      try
       {
-         // appender.append(result.toString());
+         el = MVEL.eval(el, ctx, factory, String.class);
+         result = expressions.evaluateValueExpression(expressions.toExpression(el));
+         if (result == null)
+         {
+            result = "";
+         }
       }
+      catch (PropertyNotFoundException e)
+      {
+         // property not found - falling back to MVEL
+      }
+
+      bindings.put(name, el);
+
+      appender.append("name=\"" + name + "\" value=\"" + result.toString() + "\"");
 
       return next != null ? next.eval(runtime, appender, ctx, factory) : null;
    }
