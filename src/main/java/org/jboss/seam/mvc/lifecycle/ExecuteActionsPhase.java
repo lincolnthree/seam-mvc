@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.seam.mvc.MVC;
 import org.jboss.seam.mvc.spi.NavigationProvider;
@@ -50,7 +52,8 @@ public class ExecuteActionsPhase implements Phase
    @Inject
    private Expressions expressions;
 
-   public void perform(final CompiledTemplateResource view, final Map<String, String[]> parameterMap)
+   public void perform(final HttpServletRequest req, final HttpServletResponse resp,
+            final CompiledTemplateResource view, final Map<String, String[]> parameterMap)
    {
       Map<Object, Object> map = new HashMap<Object, Object>();
       map.putAll(parameterMap);
@@ -70,11 +73,14 @@ public class ExecuteActionsPhase implements Phase
             if (result != null)
             {
                ServiceLoader<NavigationProvider> loader = ServiceLoader.load(NavigationProvider.class);
-               for (NavigationProvider provider : loader)
+               for (NavigationProvider<Object> provider : loader)
                {
-                  if (provider.navigate(result))
+                  if (provider.handles(result))
                   {
-                     break;
+                     if (provider.navigate(req, resp, result))
+                     {
+                        break;
+                     }
                   }
                }
             }

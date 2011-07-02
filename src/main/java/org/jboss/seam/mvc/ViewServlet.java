@@ -128,7 +128,7 @@ public class ViewServlet extends HttpServlet
          params.putAll(parameterMap);
 
          applyValuesPhase.perform(input, parameterMap);
-         executeActionsPhase.perform(input, parameterMap);
+         executeActionsPhase.perform(req, resp, input, parameterMap);
 
          Map<Object, Object> map = new HashMap<Object, Object>();
 
